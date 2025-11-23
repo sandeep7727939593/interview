@@ -244,6 +244,7 @@ export default function QuestionsPage() {
               <div className="form-group">
                 <label className="form-label">Answer</label>
                 <textarea
+                  name="answer"
                   value={formData.answer}
                   onChange={(e) =>
                     setFormData({ ...formData, answer: e.target.value })
