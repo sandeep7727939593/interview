@@ -10,7 +10,8 @@ export async function GET() {
 }
 
 export async function POST(req) {
-  const isAdmin = cookies().get("admin_auth")?.value === "true";
+  const cookie = req.cookies.get("admin_auth");
+  const isAdmin = cookie.value === "true";
 
   if (!isAdmin) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
