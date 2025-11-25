@@ -335,6 +335,7 @@ body {
 
 .question-card.expanded .answer-panel {
   max-height: 800px;
+   overflow: scroll;
 }
 
 .answer-label {
