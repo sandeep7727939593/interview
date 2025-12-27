@@ -299,17 +299,27 @@ body {
   color: #94a3b8;
 }
 
+question-card-actions {
+  margin-left: auto
+}
+
 .icon-button {
-  border-radius: 999px;
+  margin-left: auto;
+  /* border-radius: 999px;
   background: transparent;
   color: #64748b;
   padding: 4px;
+  cursor: pointer; */
+  background: transparent;
+  border: none;
+  padding: 0;
   cursor: pointer;
 }
 
 .icon-button:hover {
   background: #fee2e2;
   color: #b91c1c;
+  outline: none;
 }
 
 /* Category badge */

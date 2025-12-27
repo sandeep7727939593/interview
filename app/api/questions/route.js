@@ -25,6 +25,21 @@ export async function POST(req) {
       { status: 400 }
     );
   }
+  const id = body.id;
+  if (id) {
+    const existingQ = await Question.findById(id);
+    if (!existingQ) {
+      return NextResponse.json({ error: "Question not found" }, { status: 404 });
+    }
+
+    existingQ.question = body.question;
+    existingQ.answer = body.answer;
+    existingQ.category = body.category || existingQ.category;
+
+    await existingQ.save();
+
+    return NextResponse.json(existingQ);
+  } 
 
   const newQ = await Question.create({
     question: body.question,

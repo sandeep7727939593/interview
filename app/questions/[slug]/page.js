@@ -11,15 +11,19 @@ import {
   Lock,
   LogOut
 } from "lucide-react";
-import QuestionCard from "./../components/QuestionCard";
-import { CATEGORIES } from "./../constants/categories";
+import QuestionCard from "../../components/QuestionCard";
+import QuestionForm from "../../components/QuestionForm";
+import { CATEGORIES } from "../../constants/categories";
+import { useRouter, useParams } from "next/navigation";
 
 export default function QuestionsPage() {
+  const router = useRouter();
+  const { slug } = useParams();
+  console.log("Slug:", slug);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState("list");
   const [expandedId, setExpandedId] = useState(null);
-  const [filterCategory, setFilterCategory] = useState("all");
   const [isSaving, setIsSaving] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
@@ -29,6 +33,7 @@ export default function QuestionsPage() {
     const res = await fetch("/api/checkauth");
     const data = await res.json();
     setIsAdmin(data.auth);
+    fetchQuestions(slug);
   };
 
   useEffect(() => {
@@ -65,11 +70,18 @@ export default function QuestionsPage() {
   });
 
   // ✅ fetch questions
-  const fetchQuestions = async () => {
+  const fetchQuestions = async (category = "all") => {
     try {
       setLoading(true);
-      const res = await fetch("/api/questions");
+
+      const url =
+        category === "all"
+          ? "/api/questions"
+          : `/api/questions/category/${category}`;
+
+      const res = await fetch(url);
       const data = await res.json();
+
       setQuestions(data);
     } catch (err) {
       console.error("Error fetching questions", err);
@@ -78,9 +90,10 @@ export default function QuestionsPage() {
     }
   };
 
+
   useEffect(() => {
-    fetchQuestions();
-  }, []);
+    fetchQuestions(slug);
+  }, [slug]);
 
   // ✅ add question
   const handleSubmit = async (e) => {
@@ -94,9 +107,9 @@ export default function QuestionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
       });
-      setFormData({ question: "", answer: "", category: "react" });
+      setFormData({ id : "", question: "", answer: "", category: "react" });
       setView("list");
-      fetchQuestions();
+      fetchQuestions(slug);
     } catch (err) {
       console.error("Error saving question", err);
     } finally {
@@ -115,12 +128,17 @@ export default function QuestionsPage() {
       console.error("Error deleting question", err);
     }
   };
-
-  const filteredQuestions =
-    filterCategory === "all"
-      ? questions
-      : questions.filter((q) => q.category === filterCategory);
-
+  const handleEdit = (item) => {
+    setView("update");
+    setEditQuestion(item);
+    setFormData({
+      id: item._id,
+      question: item.question,
+      answer: item.answer,
+      category: item.category
+    });
+  };  
+  
   if (loading && questions.length === 0) {
     return (
       <div className="loading-screen">
@@ -128,7 +146,7 @@ export default function QuestionsPage() {
       </div>
     );
   }
-
+console.log("from", formData)
   return (
     <div className="app-root">
       <header className="app-header">
@@ -142,14 +160,13 @@ export default function QuestionsPage() {
 
           {/* ✅ Admin controls */}
           {isAdmin ? (
-            <div style={{ display: "flex", gap: "2px", padding:"10px" }}>
+            <div style={{ display: "flex", gap: "2px", padding: "10px" }}>
               <button
                 onClick={() => setView(view === "list" ? "add" : "list")}
-                className={`header-toggle ${
-                  view === "list"
+                className={`header-toggle ${view === "list"
                     ? "header-toggle-primary"
                     : "header-toggle-muted"
-                }`}
+                  }`}
               >
                 {view === "list" ? (
                   <>
@@ -203,81 +220,26 @@ export default function QuestionsPage() {
 
         {/* ✅ Add Question (admin only) */}
         {view === "add" && isAdmin && (
-          <div className="card form-card">
-            <h2>New Interview Question</h2>
+          <QuestionForm 
+            CATEGORIES={CATEGORIES}
+            handleSubmit={handleSubmit}
+            formData={formData}
+            setFormData={setFormData}
+            isSaving={isSaving}
+            setView={setView} 
+          />)}
 
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label className="form-label">Topic</label>
-                <div className="category-grid">
-                  {CATEGORIES.map((cat) => (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      className={`category-button ${
-                        formData.category === cat.id ? "active" : ""
-                      }`}
-                      onClick={() =>
-                        setFormData({ ...formData, category: cat.id })
-                      }
-                    >
-                      {cat.icon} {cat.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Question</label>
-                <input
-                  type="text"
-                  value={formData.question}
-                  onChange={(e) =>
-                    setFormData({ ...formData, question: e.target.value })
-                  }
-                  className="input"
-                  placeholder="e.g. What is Virtual DOM?"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Answer</label>
-                <textarea
-                  name="answer"
-                  value={formData.answer}
-                  onChange={(e) =>
-                    setFormData({ ...formData, answer: e.target.value })
-                  }
-                  className="textarea"
-                  required
-                />
-              </div>
-
-              <div className="form-actions">
-                <button
-                  type="button"
-                  onClick={() => setView("list")}
-                  className="button button-ghost"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="button button-primary"
-                  disabled={isSaving}
-                >
-                  {isSaving ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Save size={16} />
-                  )}
-                  Save Question
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+        {/* ✅ Update Question (admin only) */}
+        {view === "update" && isAdmin && 
+          <QuestionForm 
+            CATEGORIES={CATEGORIES}
+            handleSubmit={handleSubmit}
+            formData={formData}
+            setFormData={setFormData}
+            isSaving={isSaving}
+            setView={setView} 
+          />
+        }
 
         {/* ✅ List View */}
         {view === "list" && (
@@ -290,10 +252,8 @@ export default function QuestionsPage() {
 
                 <div className="filter-chips">
                   <button
-                    onClick={() => setFilterCategory("all")}
-                    className={`filter-button ${
-                      filterCategory === "all" ? "active" : ""
-                    }`}
+                    onClick={() => router.push("/questions/all")}
+                    className={`filter-button ${slug === "all" ? "active" : ""}`}
                   >
                     All
                   </button>
@@ -301,10 +261,8 @@ export default function QuestionsPage() {
                   {CATEGORIES.map((cat) => (
                     <button
                       key={cat.id}
-                      onClick={() => setFilterCategory(cat.id)}
-                      className={`filter-button ${
-                        filterCategory === cat.id ? "active" : ""
-                      }`}
+                      onClick={() => router.push(`/questions/${cat.id}`)}
+                      className={`filter-button ${slug === cat.id ? "active" : ""}`}
                     >
                       {cat.name}
                     </button>
@@ -314,7 +272,7 @@ export default function QuestionsPage() {
             </div>
 
             <div className="list-wrapper">
-              {filteredQuestions.length === 0 ? (
+              {questions.length === 0 ? (
                 <div className="empty-state">
                   <div className="empty-icon-wrap">
                     <Search size={30} className="text-indigo-300" />
@@ -325,12 +283,13 @@ export default function QuestionsPage() {
                   </div>
                 </div>
               ) : (
-                filteredQuestions.map((item) => (
+                questions.map((item) => (
                   <QuestionCard
                     key={item._id}
                     item={item}
                     isAdmin={isAdmin}
                     onDelete={isAdmin ? handleDelete : null}
+                    onEdit={isAdmin ? handleEdit : null}
                     onExpand={(id) =>
                       setExpandedId(expandedId === id ? null : id)
                     }

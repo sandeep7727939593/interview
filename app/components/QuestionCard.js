@@ -1,11 +1,12 @@
 "use client";
 
-import { Trash2, ChevronDown } from "lucide-react";
+import { Trash2, Pencil, ChevronDown } from "lucide-react";
 import CategoryBadge from "./CategoryBadge";
 
 export default function QuestionCard({
   item,
   onDelete,
+  onEdit,
   onExpand,
   isExpanded,
   isAdmin
@@ -27,17 +28,27 @@ export default function QuestionCard({
 
           <div className="question-title-row">
             <h3 className="question-title">{item.question}</h3>
-
-            {isAdmin && (
+            <div className="question-card-actions">
+            {isAdmin && (<>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(item);
+                }}
+                className="icon-button"
+              >
+                <Pencil size={18} />
+              </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete(item._id);
                 }}
-                className="icon-button delete-inline"
+                className="icon-button "
               >
                 <Trash2 size={18} />
               </button>
+              </>
             )}
 
             <ChevronDown
@@ -48,6 +59,7 @@ export default function QuestionCard({
                 onExpand(item._id);
               }}
             />
+            </div>
           </div>
         </div>
       </div>
