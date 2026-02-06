@@ -27,6 +27,13 @@ export default function QuestionsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageProperties, setPageProperties] = useState({
+    totalPages: 1,
+    currentPage: 1,
+    documentCount: 0
+  });
+ 
 
   // ✅ check admin cookie
   const checkAuth = async () => {
@@ -70,19 +77,20 @@ export default function QuestionsPage() {
   });
 
   // ✅ fetch questions
-  const fetchQuestions = async (category = "all") => {
+  const fetchQuestions = async (category = "all", page = 1) => {
     try {
       setLoading(true);
 
       const url =
         category === "all"
-          ? "/api/questions"
-          : `/api/questions/category/${category}`;
+          ? `/api/questions?page=${page}`
+          : `/api/questions/category/${category}?page=${page}`;
 
       const res = await fetch(url);
       const data = await res.json();
 
-      setQuestions(data);
+      setQuestions(data.items ?? []);
+      setPageProperties(data.pageProperties ?? { totalPages: 1, currentPage: 1, documentCount: 0 });
     } catch (err) {
       console.error("Error fetching questions", err);
     } finally {
@@ -92,8 +100,8 @@ export default function QuestionsPage() {
 
 
   useEffect(() => {
-    fetchQuestions(slug);
-  }, [slug]);
+    fetchQuestions(slug, page);
+  }, [slug, page]);
 
   // ✅ add question
   const handleSubmit = async (e) => {
@@ -107,7 +115,7 @@ export default function QuestionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
       });
-      setFormData({ id : "", question: "", answer: "", category: "react" });
+      setFormData({ id: "", question: "", answer: "", category: "react" });
       setView("list");
       fetchQuestions(slug);
     } catch (err) {
@@ -137,8 +145,8 @@ export default function QuestionsPage() {
       answer: item.answer,
       category: item.category
     });
-  };  
-  
+  };
+
   if (loading && questions.length === 0) {
     return (
       <div className="loading-screen">
@@ -146,7 +154,17 @@ export default function QuestionsPage() {
       </div>
     );
   }
-console.log("from", formData)
+
+  const handlePageChange = (type) => {
+    if (type == 'next') {
+      if (pageProperties.currentPage === pageProperties.totalPages) return;
+      setPage(page + 1);
+    } else {
+      if (pageProperties.currentPage === 1) return;
+      setPage(page - 1);
+    }
+  };
+  console.log("from", formData)
   return (
     <div className="app-root">
       <header className="app-header">
@@ -164,8 +182,8 @@ console.log("from", formData)
               <button
                 onClick={() => setView(view === "list" ? "add" : "list")}
                 className={`header-toggle ${view === "list"
-                    ? "header-toggle-primary"
-                    : "header-toggle-muted"
+                  ? "header-toggle-primary"
+                  : "header-toggle-muted"
                   }`}
               >
                 {view === "list" ? (
@@ -220,24 +238,24 @@ console.log("from", formData)
 
         {/* ✅ Add Question (admin only) */}
         {view === "add" && isAdmin && (
-          <QuestionForm 
+          <QuestionForm
             CATEGORIES={CATEGORIES}
             handleSubmit={handleSubmit}
             formData={formData}
             setFormData={setFormData}
             isSaving={isSaving}
-            setView={setView} 
+            setView={setView}
           />)}
 
         {/* ✅ Update Question (admin only) */}
-        {view === "update" && isAdmin && 
-          <QuestionForm 
+        {view === "update" && isAdmin &&
+          <QuestionForm
             CATEGORIES={CATEGORIES}
             handleSubmit={handleSubmit}
             formData={formData}
             setFormData={setFormData}
             isSaving={isSaving}
-            setView={setView} 
+            setView={setView}
           />
         }
 
@@ -247,7 +265,7 @@ console.log("from", formData)
             <div className="stats-bar">
               <div className="stats-inner">
                 <div className="stats-count">
-                  <BookOpen size={16} /> {questions.length} Questions Saved
+                  <BookOpen size={16} /> {questions.length} Questions out of {pageProperties.documentCount}+
                 </div>
 
                 <div className="filter-chips">
@@ -297,6 +315,28 @@ console.log("from", formData)
                   />
                 ))
               )}
+            </div>
+            <div>
+              {
+                pageProperties.totalPages > 1 && (
+                  <div className="pagination">
+                    <button
+                      onClick={() => handlePageChange('prev')}
+                      className={`pagination-button ${pageProperties.currentPage === 1 ? 'disabled' : 'active'}`}
+                      disabled={pageProperties.currentPage === 1}
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => handlePageChange('next')}
+                      className={`pagination-button ${pageProperties.currentPage === pageProperties.totalPages ? 'disabled' : 'active'}`}
+                      disabled={pageProperties.currentPage === pageProperties.totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )
+              }
             </div>
           </div>
         )}

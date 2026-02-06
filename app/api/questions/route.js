@@ -1,12 +1,25 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "./../../lib/mongodb";
 import Question from "./../../models/Question";
 import { cookies } from "next/headers";
 
-export async function GET() {
+export async function GET(req) {
   await connectDB();
-  const items = await Question.find().sort({ createdAt: -1 });
-  return NextResponse.json(items);
+  const url = new URL(req.url);
+  const page = parseInt(url.searchParams.get("page")) || 1;
+  const limit = 20;
+  const items = await Question.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+  const documentCount = await Question.countDocuments();
+  const totalPages = Math.ceil(documentCount / limit);
+
+  return NextResponse.json({
+    "items" : items,
+    "pageProperties": {
+      "totalPages": totalPages,
+      "currentPage": parseInt(page),
+      "documentCount": documentCount
+    }
+  });
 }
 
 export async function POST(req) {
