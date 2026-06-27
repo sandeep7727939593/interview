@@ -1,0 +1,277 @@
+[
+  {
+    "question": "What is TypeScript and how does it relate to JavaScript?",
+    "answer": "<p>TypeScript is a <strong>statically typed superset of JavaScript</strong> developed by Microsoft. Any valid JavaScript is valid TypeScript, but TypeScript adds optional static types, interfaces, generics, and other features on top.</p><p>TypeScript code is compiled (transpiled) down to plain JavaScript so it can run in any browser or runtime. The type system exists only at compile time and is <strong>erased</strong> from the emitted JavaScript, meaning types provide no runtime overhead.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are the primitive types in TypeScript?",
+    "answer": "<p>The core primitive types are <strong>string</strong>, <strong>number</strong>, <strong>boolean</strong>, <strong>bigint</strong>, <strong>symbol</strong>, <strong>null</strong>, and <strong>undefined</strong>. These mirror JavaScript's primitive values.</p><pre><code>let name: string = \"Ada\";\nlet age: number = 36;\nlet active: boolean = true;\nlet big: bigint = 100n;</code></pre><p>Always use the lowercase forms (<code>string</code>, <code>number</code>) rather than the boxed object types (<code>String</code>, <code>Number</code>), which should be avoided.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is the difference between a type alias and an interface?",
+    "answer": "<p>Both can describe the shape of an object, and in many cases they are interchangeable. Key differences:</p><ul><li><strong>Interfaces</strong> support declaration merging (you can declare the same interface multiple times and they combine) and are typically preferred for public object/class contracts.</li><li><strong>Type aliases</strong> are more flexible: they can represent unions, intersections, tuples, primitives, and mapped/conditional types, which interfaces cannot.</li></ul><pre><code>interface User { id: number }\ntype ID = string | number;</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is the difference between any and unknown?",
+    "answer": "<p><code>any</code> disables type checking entirely; you can perform any operation on an <code>any</code> value and it propagates unsafely through your code.</p><p><code>unknown</code> is the <strong>type-safe counterpart</strong>: you can assign anything to it, but you cannot use it until you narrow it with a type check or assertion. Prefer <code>unknown</code> over <code>any</code> when accepting arbitrary values.</p><pre><code>let a: any = 5;\na.foo(); // no error, unsafe\n\nlet u: unknown = 5;\n// u.foo(); // error\nif (typeof u === \"number\") u.toFixed();</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What does the never type represent?",
+    "answer": "<p><code>never</code> represents values that <strong>never occur</strong>. It is the return type of functions that always throw or never return (infinite loops), and the type of variables in unreachable code branches.</p><p>It is also the result of impossible type narrowing, which makes it useful for <strong>exhaustiveness checking</strong> in switch statements.</p><pre><code>function fail(msg: string): never {\n  throw new Error(msg);\n}</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is the difference between never and void?",
+    "answer": "<p><code>void</code> means a function returns no useful value (it returns <code>undefined</code>) but it <strong>does</strong> complete normally. <code>never</code> means the function <strong>never returns at all</strong>, either because it always throws or loops forever.</p><pre><code>function log(): void { console.log(\"hi\"); }\nfunction crash(): never { throw new Error(); }</code></pre><p>So <code>void</code> is a normal completion with no value, while <code>never</code> means execution does not reach the end.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is a union type?",
+    "answer": "<p>A union type allows a value to be <strong>one of several types</strong>, written with the <code>|</code> operator. A value of a union type can hold any of the constituent types.</p><pre><code>function format(id: string | number) {\n  return id.toString();\n}\nformat(42);\nformat(\"abc\");</code></pre><p>You can only access members that are common to all members of the union until you narrow the type.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is an intersection type?",
+    "answer": "<p>An intersection type combines multiple types into one using the <code>&</code> operator. The resulting type has <strong>all members of every combined type</strong> simultaneously.</p><pre><code>interface Named { name: string }\ninterface Aged { age: number }\ntype Person = Named &amp; Aged;\n\nconst p: Person = { name: \"Ada\", age: 36 };</code></pre><p>Intersections are commonly used to merge multiple interfaces or mixins into a single composite type.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are literal types in TypeScript?",
+    "answer": "<p>Literal types restrict a value to a <strong>specific exact value</strong> rather than a general type. They can be string, number, or boolean literals.</p><pre><code>type Direction = \"up\" | \"down\";\nlet d: Direction = \"up\"; // \"left\" would error</code></pre><p>Combined with unions, literal types create powerful, self-documenting APIs where only a fixed set of values is allowed.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "How do enums work in TypeScript?",
+    "answer": "<p>An <code>enum</code> defines a named set of constants. By default enums are numeric, auto-incrementing from 0, but you can assign explicit values or use string enums.</p><pre><code>enum Color { Red, Green, Blue } // 0,1,2\nenum Status { Active = \"ACTIVE\", Off = \"OFF\" }</code></pre><p>Numeric enums generate a reverse mapping at runtime. Many teams prefer <code>const enum</code> or plain union literal types to avoid emitting extra runtime code.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is the difference between a regular enum and a const enum?",
+    "answer": "<p>A regular <code>enum</code> generates a real JavaScript object at runtime, allowing reverse lookups and runtime iteration. A <code>const enum</code> is <strong>completely inlined</strong> at compile time, so no object is emitted and references are replaced with their literal values.</p><pre><code>const enum Dir { Up, Down }\nlet x = Dir.Up; // compiles to: let x = 0;</code></pre><p><code>const enum</code> reduces bundle size but cannot be used in some isolated-module setups.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are tuple types?",
+    "answer": "<p>A tuple is an array with a <strong>fixed number of elements whose types are known</strong> at each position. Order and length matter.</p><pre><code>let pair: [string, number] = [\"age\", 30];\npair[0].toUpperCase();\npair[1].toFixed();</code></pre><p>Tuples support optional elements (<code>[string, number?]</code>), rest elements (<code>[string, ...number[]]</code>), and named labels for readability (<code>[name: string, age: number]</code>).</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are generics and why are they useful?",
+    "answer": "<p>Generics let you write reusable components that work over a <strong>variety of types while preserving type information</strong>. A type parameter acts as a placeholder filled in when the function or class is used.</p><pre><code>function identity&lt;T&gt;(value: T): T {\n  return value;\n}\nconst n = identity(5);     // T = number\nconst s = identity(\"hi\"); // T = string</code></pre><p>Without generics you'd lose type safety (using <code>any</code>) or duplicate code for each type.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are generic constraints?",
+    "answer": "<p>Generic constraints restrict what types a type parameter can accept, using the <code>extends</code> keyword. This lets you safely access known properties inside a generic function.</p><pre><code>function longest&lt;T extends { length: number }&gt;(a: T, b: T): T {\n  return a.length &gt;= b.length ? a : b;\n}\nlongest([1,2], [1,2,3]); // ok\n// longest(1, 2);        // error: number has no length</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "How can you set a default value for a generic type parameter?",
+    "answer": "<p>You can provide a default type after the parameter using <code>=</code>. If the caller doesn't specify or infer the type, the default is used.</p><pre><code>interface Container&lt;T = string&gt; {\n  value: T;\n}\nconst a: Container = { value: \"hi\" };      // T = string\nconst b: Container&lt;number&gt; = { value: 1 }; // T = number</code></pre><p>This is helpful for APIs where most consumers want a common default but advanced users can override.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What does the Partial<T> utility type do?",
+    "answer": "<p><code>Partial&lt;T&gt;</code> constructs a type with <strong>all properties of T set to optional</strong>. It is commonly used for update functions where only some fields are provided.</p><pre><code>interface User { id: number; name: string }\nfunction update(u: User, patch: Partial&lt;User&gt;) {\n  return { ...u, ...patch };\n}\nupdate(user, { name: \"New\" });</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What do the Pick<T, K> and Omit<T, K> utility types do?",
+    "answer": "<p><code>Pick&lt;T, K&gt;</code> creates a type by selecting a subset of keys <code>K</code> from <code>T</code>. <code>Omit&lt;T, K&gt;</code> does the opposite, creating a type with the specified keys removed.</p><pre><code>interface User { id: number; name: string; password: string }\ntype PublicUser = Omit&lt;User, \"password\"&gt;;\ntype NameOnly = Pick&lt;User, \"name\"&gt;;</code></pre><p>They are useful for deriving related types without redefining shapes.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What does the Record<K, T> utility type do?",
+    "answer": "<p><code>Record&lt;K, T&gt;</code> constructs an object type whose <strong>keys are of type K and values are of type T</strong>. It is ideal for dictionaries and lookup maps.</p><pre><code>type Roles = Record&lt;\"admin\" | \"user\", boolean&gt;;\nconst perms: Roles = { admin: true, user: false };\n\ntype ScoreMap = Record&lt;string, number&gt;;</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What do the Readonly<T> and Required<T> utility types do?",
+    "answer": "<p><code>Readonly&lt;T&gt;</code> makes all properties of <code>T</code> immutable (read-only), preventing reassignment after creation. <code>Required&lt;T&gt;</code> does the opposite of <code>Partial</code>, making all optional properties required.</p><pre><code>interface Config { host?: string; port?: number }\ntype FullConfig = Required&lt;Config&gt;; // host &amp; port required\n\nconst c: Readonly&lt;{ x: number }&gt; = { x: 1 };\n// c.x = 2; // error</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What do the Exclude<T, U> and Extract<T, U> utility types do?",
+    "answer": "<p><code>Exclude&lt;T, U&gt;</code> removes from union <code>T</code> all members that are assignable to <code>U</code>. <code>Extract&lt;T, U&gt;</code> keeps only the members assignable to <code>U</code>.</p><pre><code>type T = \"a\" | \"b\" | \"c\";\ntype A = Exclude&lt;T, \"a\"&gt;;  // \"b\" | \"c\"\ntype B = Extract&lt;T, \"a\" | \"z\"&gt;; // \"a\"</code></pre><p>They operate on union types and are built on conditional types internally.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What does the ReturnType<T> utility type do?",
+    "answer": "<p><code>ReturnType&lt;T&gt;</code> extracts the return type of a function type <code>T</code>. It uses the <code>infer</code> keyword internally.</p><pre><code>function getUser() {\n  return { id: 1, name: \"Ada\" };\n}\ntype User = ReturnType&lt;typeof getUser&gt;;\n// { id: number; name: string }</code></pre><p>This is handy for keeping derived types in sync with the actual implementation rather than maintaining them separately.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are mapped types?",
+    "answer": "<p>Mapped types create new object types by <strong>iterating over the keys of an existing type</strong> and transforming each property. They use the <code>[K in keyof T]</code> syntax.</p><pre><code>type Optional&lt;T&gt; = {\n  [K in keyof T]?: T[K];\n};\ntype Stringify&lt;T&gt; = {\n  [K in keyof T]: string;\n};</code></pre><p>Many built-in utility types like <code>Partial</code> and <code>Readonly</code> are implemented as mapped types.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are mapping modifiers in mapped types?",
+    "answer": "<p>Mapping modifiers add or remove <code>readonly</code> and <code>?</code> (optional) during mapping. Prefix with <code>+</code> to add or <code>-</code> to remove.</p><pre><code>type Mutable&lt;T&gt; = {\n  -readonly [K in keyof T]: T[K];\n};\ntype Concrete&lt;T&gt; = {\n  [K in keyof T]-?: T[K];\n};</code></pre><p><code>Mutable</code> strips <code>readonly</code>, and <code>Concrete</code> strips optionality from every property.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "How does key remapping work in mapped types?",
+    "answer": "<p>Since TypeScript 4.1 you can remap keys in a mapped type using an <code>as</code> clause, often combined with template literal types to rename keys.</p><pre><code>type Getters&lt;T&gt; = {\n  [K in keyof T as `get${Capitalize&lt;string &amp; K&gt;}`]: () =&gt; T[K];\n};\ntype P = Getters&lt;{ name: string }&gt;;\n// { getName: () =&gt; string }</code></pre><p>You can also remap a key to <code>never</code> to filter it out of the result.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are conditional types?",
+    "answer": "<p>Conditional types select one of two types based on a condition, using the form <code>T extends U ? X : Y</code>. They enable type-level branching logic.</p><pre><code>type IsString&lt;T&gt; = T extends string ? true : false;\ntype A = IsString&lt;\"hi\"&gt;; // true\ntype B = IsString&lt;42&gt;;   // false</code></pre><p>When the checked type is a naked union, conditional types <strong>distribute</strong> over each member of the union.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What does the infer keyword do in conditional types?",
+    "answer": "<p><code>infer</code> declares a type variable inside a conditional type's <code>extends</code> clause to <strong>capture and extract</strong> a type from a larger structure.</p><pre><code>type ElementType&lt;T&gt; = T extends (infer U)[] ? U : T;\ntype A = ElementType&lt;number[]&gt;; // number\n\ntype Awaited2&lt;T&gt; = T extends Promise&lt;infer R&gt; ? R : T;</code></pre><p>It is the foundation of utility types like <code>ReturnType</code> and <code>Parameters</code>.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is the keyof operator?",
+    "answer": "<p><code>keyof</code> produces a <strong>union of the property names (keys)</strong> of a given type as string/number literal types.</p><pre><code>interface User { id: number; name: string }\ntype UserKeys = keyof User; // \"id\" | \"name\"\n\nfunction get&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {\n  return obj[key];\n}</code></pre><p>It is essential for writing type-safe generic property accessors.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is the typeof type operator in TypeScript?",
+    "answer": "<p>In a <strong>type context</strong>, <code>typeof</code> captures the type of a variable or object, letting you reuse a value's inferred type without writing it out manually.</p><pre><code>const config = { host: \"localhost\", port: 8080 };\ntype Config = typeof config;\n// { host: string; port: number }</code></pre><p>This differs from JavaScript's runtime <code>typeof</code> which returns a string. The type-level <code>typeof</code> is often combined with <code>keyof</code>.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are indexed access types?",
+    "answer": "<p>Indexed access types let you look up the type of a property using bracket notation at the type level: <code>T[K]</code>.</p><pre><code>interface User { id: number; name: string }\ntype IdType = User[\"id\"];          // number\ntype Values = User[keyof User];    // number | string</code></pre><p>You can also index array element types with <code>number</code>: <code>MyArray[number]</code> gives the element type.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is type narrowing?",
+    "answer": "<p>Type narrowing is the process by which TypeScript <strong>refines a broader type to a more specific one</strong> within a code branch, based on control flow analysis. Checks like <code>typeof</code>, <code>instanceof</code>, equality, and truthiness narrow the type.</p><pre><code>function pad(x: string | number) {\n  if (typeof x === \"number\") {\n    return x.toFixed(2); // x is number here\n  }\n  return x.trim();       // x is string here\n}</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is a user-defined type guard?",
+    "answer": "<p>A user-defined type guard is a function whose return type is a <strong>type predicate</strong> (<code>arg is Type</code>). When it returns true, TypeScript narrows the argument to that type.</p><pre><code>interface Cat { meow(): void }\nfunction isCat(a: unknown): a is Cat {\n  return typeof (a as Cat).meow === \"function\";\n}\nif (isCat(x)) x.meow();</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "How does the in operator narrow types?",
+    "answer": "<p>The <code>in</code> operator narrows a union by checking whether a property <strong>exists on the object</strong>. TypeScript uses the presence of the property to select the matching union member.</p><pre><code>type Fish = { swim: () =&gt; void };\ntype Bird = { fly: () =&gt; void };\nfunction move(a: Fish | Bird) {\n  if (\"swim\" in a) a.swim();\n  else a.fly();\n}</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is a discriminated (tagged) union?",
+    "answer": "<p>A discriminated union is a union of object types that share a <strong>common literal property (the discriminant)</strong> used to distinguish members. Narrowing on that property tells TypeScript exactly which member you have.</p><pre><code>type Shape =\n  | { kind: \"circle\"; r: number }\n  | { kind: \"square\"; side: number };\nfunction area(s: Shape) {\n  switch (s.kind) {\n    case \"circle\": return Math.PI * s.r ** 2;\n    case \"square\": return s.side ** 2;\n  }\n}</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "How do you implement exhaustiveness checking with never?",
+    "answer": "<p>Assign the value to a <code>never</code>-typed variable in the <code>default</code> branch of a switch over a discriminated union. If you later add a new union member without handling it, the assignment will fail to compile.</p><pre><code>function area(s: Shape) {\n  switch (s.kind) {\n    case \"circle\": return Math.PI * s.r ** 2;\n    case \"square\": return s.side ** 2;\n    default:\n      const _exhaustive: never = s;\n      return _exhaustive;\n  }\n}</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is structural typing?",
+    "answer": "<p>TypeScript uses <strong>structural typing</strong> (duck typing): two types are compatible if their <strong>shapes match</strong>, regardless of their declared names or explicit inheritance. If an object has all required members of a type, it is assignable to that type.</p><pre><code>interface Point { x: number; y: number }\nconst p = { x: 1, y: 2, z: 3 };\nconst q: Point = p; // ok, extra props allowed via variable</code></pre><p>This contrasts with nominal typing in languages like Java or C#.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are function overloads?",
+    "answer": "<p>Function overloads let you declare <strong>multiple call signatures</strong> for a single function, so the return type can depend on the argument types. You write several signatures followed by one implementation that satisfies all of them.</p><pre><code>function reverse(s: string): string;\nfunction reverse&lt;T&gt;(a: T[]): T[];\nfunction reverse(x: any): any {\n  return typeof x === \"string\"\n    ? x.split(\"\").reverse().join(\"\")\n    : x.slice().reverse();\n}</code></pre><p>The implementation signature itself is not callable from outside.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are decorators in TypeScript?",
+    "answer": "<p>Decorators are special declarations prefixed with <code>@</code> that can be attached to <strong>classes, methods, accessors, properties, or parameters</strong> to modify or annotate them. They are functions invoked at definition time.</p><pre><code>function sealed(ctor: Function) {\n  Object.seal(ctor);\n}\n@sealed\nclass Greeter {}</code></pre><p>They are heavily used by frameworks like Angular and NestJS. TypeScript 5 ships standard ECMAScript decorators; older code uses experimental decorators enabled via <code>experimentalDecorators</code>.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are declaration files (.d.ts)?",
+    "answer": "<p>Declaration files contain only <strong>type information with no implementation</strong>, describing the shape of existing JavaScript code so TypeScript can type-check it. They use the <code>.d.ts</code> extension.</p><pre><code>// math.d.ts\nexport declare function add(a: number, b: number): number;</code></pre><p>Many npm packages ship their own declarations; otherwise community types are available via the <code>@types/*</code> scope (DefinitelyTyped).</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is the difference between modules and namespaces?",
+    "answer": "<p><strong>Modules</strong> (ES modules) are file-based: each file with <code>import</code>/<code>export</code> is a module with its own scope, and they are the modern, recommended approach. <strong>Namespaces</strong> (formerly internal modules) group code under a named object within or across files using the <code>namespace</code> keyword.</p><pre><code>namespace Geometry {\n  export const pi = 3.14;\n}\nGeometry.pi;</code></pre><p>Namespaces are mostly legacy now; prefer ES modules for new code.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What does the strict option in tsconfig do?",
+    "answer": "<p><code>strict: true</code> enables a family of strict type-checking flags at once, including <code>noImplicitAny</code>, <code>strictNullChecks</code>, <code>strictFunctionTypes</code>, <code>strictBindCallApply</code>, <code>strictPropertyInitialization</code>, <code>alwaysStrict</code>, and others.</p><p>Turning it on gives the strongest safety guarantees and is strongly recommended for new projects. Individual flags can still be toggled off underneath the umbrella option if needed.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What does noImplicitAny do?",
+    "answer": "<p><code>noImplicitAny</code> raises an error whenever TypeScript would otherwise <strong>silently infer the <code>any</code> type</strong> for a value, such as an untyped function parameter. This forces you to be explicit and prevents accidental loss of type safety.</p><pre><code>// with noImplicitAny:\nfunction f(x) {} // Error: parameter 'x' implicitly has 'any'\nfunction g(x: number) {} // ok</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What does strictNullChecks do?",
+    "answer": "<p>With <code>strictNullChecks</code> enabled, <code>null</code> and <code>undefined</code> are <strong>not assignable to other types</strong> unless explicitly included in the type. This prevents a large class of \"cannot read property of undefined\" runtime errors.</p><pre><code>let s: string = null;        // error\nlet t: string | null = null; // ok\nt.length;                    // error until narrowed</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are assertion functions?",
+    "answer": "<p>An assertion function uses the <code>asserts</code> keyword to tell TypeScript that if the function returns normally, a condition holds; otherwise it throws. After the call, the compiler narrows the type.</p><pre><code>function assertIsString(x: unknown): asserts x is string {\n  if (typeof x !== \"string\") throw new Error();\n}\nfunction f(v: unknown) {\n  assertIsString(v);\n  v.toUpperCase(); // v is string here\n}</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is the satisfies operator?",
+    "answer": "<p>Introduced in TypeScript 4.9, <code>satisfies</code> checks that an expression <strong>conforms to a type without widening or changing</strong> its inferred type. You get validation plus the precise literal inference.</p><pre><code>const config = {\n  port: 8080,\n  host: \"localhost\",\n} satisfies Record&lt;string, string | number&gt;;\nconfig.port.toFixed(); // still inferred as number</code></pre><p>With a plain type annotation you'd lose the specific <code>number</code> type of <code>port</code>.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are template literal types?",
+    "answer": "<p>Template literal types build new string literal types by interpolating other types inside template-string syntax at the type level. They can combine unions to produce all permutations.</p><pre><code>type Color = \"red\" | \"blue\";\ntype Shade = \"light\" | \"dark\";\ntype Theme = `${Shade}-${Color}`;\n// \"light-red\" | \"light-blue\" | \"dark-red\" | \"dark-blue\"</code></pre><p>TypeScript also provides intrinsic helpers like <code>Uppercase</code>, <code>Lowercase</code>, <code>Capitalize</code>, and <code>Uncapitalize</code>.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is the difference between type assertions (as) and type casting?",
+    "answer": "<p>A type assertion with <code>as</code> tells the compiler to <strong>treat a value as a specific type</strong> without any runtime conversion or check. Unlike casting in other languages, it does not transform the value; it only affects compile-time checking.</p><pre><code>const el = document.getElementById(\"x\") as HTMLInputElement;\nel.value;</code></pre><p>Because assertions can be wrong, prefer type guards when you need real runtime verification.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is the difference between unknown and any when used as a function parameter?",
+    "answer": "<p>With <code>any</code>, the value bypasses all checks and any subsequent operation is allowed, infecting downstream code. With <code>unknown</code>, callers can still pass anything, but the function body must <strong>narrow the value before use</strong>, keeping it type-safe.</p><pre><code>function safe(x: unknown) {\n  if (typeof x === \"string\") return x.trim();\n}</code></pre><p>Prefer <code>unknown</code> for parsing JSON or handling external input.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What are optional and readonly properties?",
+    "answer": "<p>An <strong>optional</strong> property, marked with <code>?</code>, may be omitted. A <strong>readonly</strong> property can be set at creation but not reassigned afterward.</p><pre><code>interface User {\n  readonly id: number;\n  name?: string;\n}\nconst u: User = { id: 1 };\n// u.id = 2;     // error: readonly\nu.name = \"Ada\"; // ok</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is type widening and literal narrowing with const?",
+    "answer": "<p>When you declare with <code>let</code>, TypeScript <strong>widens</strong> a literal to its base type because the variable is mutable. With <code>const</code>, the value cannot change, so TypeScript infers the narrow literal type.</p><pre><code>let a = \"hi\";   // type: string\nconst b = \"hi\"; // type: \"hi\"</code></pre><p>You can use a <code>const</code> assertion (<code>as const</code>) to force literal/readonly inference for object and array literals.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What does the as const assertion do?",
+    "answer": "<p><code>as const</code> tells TypeScript to infer the <strong>narrowest, deeply readonly literal type</strong> for an expression. Object properties become <code>readonly</code> and literals keep their exact values rather than widening.</p><pre><code>const point = { x: 1, y: 2 } as const;\n// { readonly x: 1; readonly y: 2 }\nconst tuple = [1, 2] as const; // readonly [1, 2]</code></pre><p>It is especially useful for deriving union types from arrays of literals.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "How do distributive conditional types work, and how do you prevent distribution?",
+    "answer": "<p>When the checked type in a conditional type is a <strong>naked type parameter</strong> that is a union, the conditional distributes over each union member individually.</p><pre><code>type ToArray&lt;T&gt; = T extends any ? T[] : never;\ntype A = ToArray&lt;string | number&gt;; // string[] | number[]</code></pre><p>To prevent distribution, wrap both sides in tuples: <code>[T] extends [U] ? X : Y</code>, which treats the union as a whole.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is the difference between interface extends and intersection types for composition?",
+    "answer": "<p>Both combine types, but they differ on conflicts. <code>interface B extends A</code> requires compatible members and <strong>reports an error on conflicting property types</strong>. An intersection silently combines them, and a property with incompatible types resolves to <code>never</code>.</p><pre><code>interface A { x: number }\n// interface B extends A { x: string } // error\ntype C = A &amp; { x: string }; // x: never</code></pre><p>Interfaces also benefit from caching and better error messages for object hierarchies.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "How do you type a function that maps over a discriminated union to return a related type?",
+    "answer": "<p>You can use a conditional or mapped type keyed by the discriminant to map each variant to its payload, often via an interface map and indexed access.</p><pre><code>interface EventMap {\n  click: { x: number; y: number };\n  key: { code: string };\n}\nfunction on&lt;K extends keyof EventMap&gt;(\n  type: K,\n  handler: (e: EventMap[K]) =&gt; void\n) {}\non(\"key\", e =&gt; e.code); // e typed as { code: string }</code></pre>",
+    "category": "typescript"
+  },
+  {
+    "question": "What is declaration merging?",
+    "answer": "<p>Declaration merging lets the compiler combine <strong>multiple declarations with the same name</strong> into a single definition. Interfaces with the same name merge their members, and namespaces can merge with functions, classes, or enums to add static members.</p><pre><code>interface Box { width: number }\ninterface Box { height: number }\n// Box now has width AND height</code></pre><p>This is commonly used to augment third-party or global types.</p>",
+    "category": "typescript"
+  },
+  {
+    "question": "How do you augment a global or module type in TypeScript?",
+    "answer": "<p>Use <code>declare global</code> inside a module to extend global interfaces, or <code>declare module</code> to add to an existing module's types. This relies on declaration merging.</p><pre><code>// add a property to Window\ndeclare global {\n  interface Window { appVersion: string }\n}\nexport {};</code></pre><p>The trailing <code>export {}</code> ensures the file is treated as a module so the augmentation is scoped correctly.</p>",
+    "category": "typescript"
+  }
+]

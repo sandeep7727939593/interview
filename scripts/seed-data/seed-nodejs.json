@@ -1,0 +1,302 @@
+[
+  {
+    "question": "What is Node.js and what makes it different from traditional server-side platforms?",
+    "answer": "<p><strong>Node.js</strong> is a JavaScript runtime built on Chrome's V8 engine that lets you run JavaScript outside the browser, typically for server-side applications. Unlike traditional thread-per-request platforms, Node.js uses a <strong>single-threaded, event-driven, non-blocking I/O model</strong>, which makes it highly efficient for I/O-bound and real-time applications.</p><p>It scales using an event loop rather than spawning a thread per connection, reducing memory overhead. This design is ideal for APIs, streaming, and chat applications but less suited for heavy CPU-bound work.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the event loop in Node.js and why is it important?",
+    "answer": "<p>The <strong>event loop</strong> is the mechanism that allows Node.js to perform non-blocking I/O operations despite JavaScript being single-threaded. It continuously checks a set of queues and offloads operations (file, network, timers) to the system or libuv's thread pool, then executes their callbacks when results are ready.</p><p>It is important because it enables Node.js to handle thousands of concurrent connections without blocking. The loop runs through phases: <strong>timers, pending callbacks, poll, check, and close callbacks</strong>.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What are the phases of the Node.js event loop?",
+    "answer": "<p>The event loop processes callbacks in ordered phases on each iteration (tick):</p><ul><li><strong>Timers</strong> — executes <code>setTimeout</code> and <code>setInterval</code> callbacks.</li><li><strong>Pending callbacks</strong> — runs I/O callbacks deferred from a previous loop.</li><li><strong>Poll</strong> — retrieves new I/O events and executes their callbacks.</li><li><strong>Check</strong> — runs <code>setImmediate</code> callbacks.</li><li><strong>Close callbacks</strong> — handles things like <code>socket.on('close')</code>.</li></ul><p>Between phases, the microtask queues (<code>process.nextTick</code> and resolved Promises) are drained.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is libuv and what role does it play in Node.js?",
+    "answer": "<p><strong>libuv</strong> is a C library that provides Node.js with its event loop, asynchronous I/O, and a <strong>thread pool</strong>. It abstracts platform-specific APIs (epoll on Linux, kqueue on macOS, IOCP on Windows) so Node.js can perform non-blocking operations consistently across systems.</p><p>While much I/O is handled by the OS asynchronously, operations like file system access, DNS lookups, and crypto run on libuv's default 4-thread pool, which can be tuned via <code>UV_THREADPOOL_SIZE</code>.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the difference between process.nextTick() and setImmediate()?",
+    "answer": "<p><code>process.nextTick()</code> callbacks run <strong>immediately after the current operation completes</strong>, before the event loop continues to the next phase — they are part of the microtask queue and have the highest priority. <code>setImmediate()</code> callbacks run in the <strong>check phase</strong> of the next event loop iteration.</p><pre><code>process.nextTick(() =&gt; console.log('nextTick'));\nsetImmediate(() =&gt; console.log('immediate'));\n// Output: nextTick, then immediate</code></pre><p>Overusing <code>nextTick</code> can starve the event loop, so prefer <code>setImmediate</code> for deferring work.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What does non-blocking I/O mean in Node.js?",
+    "answer": "<p><strong>Non-blocking I/O</strong> means that I/O operations (reading files, querying databases, network requests) do not halt the execution of the program while waiting for a result. Instead, Node.js initiates the operation and registers a callback, then continues executing other code; when the operation finishes, the callback is queued for execution.</p><p>This contrasts with blocking (synchronous) I/O where the thread waits idly. Non-blocking I/O is what allows a single thread to handle many concurrent requests efficiently.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the difference between synchronous and asynchronous functions in Node.js? Give an example.",
+    "answer": "<p>A <strong>synchronous</strong> function blocks execution until it completes and returns its result directly. An <strong>asynchronous</strong> function returns control immediately and delivers its result later via a callback, Promise, or async/await.</p><pre><code>const fs = require('fs');\n// Synchronous - blocks the event loop\nconst data = fs.readFileSync('file.txt', 'utf8');\n// Asynchronous - non-blocking\nfs.readFile('file.txt', 'utf8', (err, data) =&gt; {\n  if (err) throw err;\n  console.log(data);\n});</code></pre><p>Prefer async versions in servers to avoid blocking the single thread.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is a callback in Node.js and what is callback hell?",
+    "answer": "<p>A <strong>callback</strong> is a function passed as an argument to another function, to be invoked once an asynchronous operation completes. Node.js historically used the <strong>error-first callback</strong> convention where the first argument is an error.</p><p><strong>Callback hell</strong> refers to deeply nested callbacks that become hard to read and maintain (the \"pyramid of doom\"). It is solved using Promises, async/await, or modularizing functions.</p><pre><code>getUser(id, (err, user) =&gt; {\n  getOrders(user, (err, orders) =&gt; {\n    getDetails(orders, (err, details) =&gt; { /* nested */ });\n  });\n});</code></pre>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What are Promises and how do they improve asynchronous code?",
+    "answer": "<p>A <strong>Promise</strong> is an object representing the eventual completion or failure of an asynchronous operation. It can be in one of three states: <strong>pending, fulfilled, or rejected</strong>. Promises improve async code by allowing chaining with <code>.then()</code> and <code>.catch()</code>, avoiding deeply nested callbacks.</p><pre><code>fetchUser(id)\n  .then(user =&gt; fetchOrders(user))\n  .then(orders =&gt; console.log(orders))\n  .catch(err =&gt; console.error(err));</code></pre><p>They also enable composition with <code>Promise.all</code>, <code>Promise.race</code>, and <code>Promise.allSettled</code>.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is async/await and how does it relate to Promises?",
+    "answer": "<p><strong>async/await</strong> is syntactic sugar over Promises that lets you write asynchronous code in a synchronous-looking style. An <code>async</code> function always returns a Promise, and <code>await</code> pauses execution until the awaited Promise settles.</p><pre><code>async function getData() {\n  try {\n    const user = await fetchUser(id);\n    const orders = await fetchOrders(user);\n    return orders;\n  } catch (err) {\n    console.error(err);\n  }\n}</code></pre><p>It improves readability and uses standard <code>try/catch</code> for error handling, but doesn't change the underlying Promise mechanics.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the difference between Promise.all, Promise.race, Promise.allSettled, and Promise.any?",
+    "answer": "<ul><li><strong>Promise.all</strong> — resolves when all promises resolve; rejects immediately if any rejects.</li><li><strong>Promise.race</strong> — settles as soon as the first promise settles (resolve or reject).</li><li><strong>Promise.allSettled</strong> — waits for all promises and returns their statuses, never short-circuiting.</li><li><strong>Promise.any</strong> — resolves with the first fulfilled promise; rejects only if all reject (with an AggregateError).</li></ul><pre><code>const results = await Promise.allSettled([p1, p2, p3]);</code></pre>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the difference between CommonJS and ES Modules in Node.js?",
+    "answer": "<p><strong>CommonJS (CJS)</strong> uses <code>require()</code> and <code>module.exports</code>, loads modules synchronously, and is the traditional Node.js format. <strong>ES Modules (ESM)</strong> use <code>import</code>/<code>export</code>, support static analysis and tree-shaking, and load asynchronously.</p><pre><code>// CommonJS\nconst fs = require('fs');\nmodule.exports = myFunc;\n// ES Modules\nimport fs from 'fs';\nexport default myFunc;</code></pre><p>ESM is enabled via <code>\"type\": \"module\"</code> in package.json or the <code>.mjs</code> extension. ESM imports are read-only live bindings, whereas CJS exports are copied values.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How does the require() function work in Node.js?",
+    "answer": "<p><code>require()</code> loads a module by resolving its path, reading and compiling the file, executing it in a wrapped function scope, and returning its <code>module.exports</code>. Node.js <strong>caches</strong> the result, so subsequent <code>require()</code> calls for the same module return the cached export rather than re-executing it.</p><p>Resolution order: core modules, then <code>node_modules</code> (walking up directories), then relative/absolute paths. The cache lives in <code>require.cache</code> and can be cleared if needed.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the purpose of the package.json file?",
+    "answer": "<p><strong>package.json</strong> is the manifest of a Node.js project. It defines metadata (name, version, description), declares <strong>dependencies</strong> and <strong>devDependencies</strong>, specifies executable <strong>scripts</strong>, sets the entry point (<code>main</code>), and configures module type and engines.</p><pre><code>{\n  \"name\": \"my-app\",\n  \"version\": \"1.0.0\",\n  \"main\": \"index.js\",\n  \"scripts\": { \"start\": \"node index.js\" },\n  \"dependencies\": { \"express\": \"^4.18.0\" }\n}</code></pre><p>It makes projects reproducible and shareable via npm.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the difference between dependencies and devDependencies?",
+    "answer": "<p><strong>dependencies</strong> are packages required for the application to run in production (e.g., Express, a database driver). <strong>devDependencies</strong> are needed only during development and testing (e.g., test frameworks, linters, build tools).</p><pre><code>npm install express        # adds to dependencies\nnpm install --save-dev jest  # adds to devDependencies</code></pre><p>When you run <code>npm install --production</code> or set <code>NODE_ENV=production</code>, devDependencies are skipped, reducing install size and attack surface.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is semantic versioning (semver) and what do the caret (^) and tilde (~) mean?",
+    "answer": "<p><strong>Semantic versioning</strong> uses the format <code>MAJOR.MINOR.PATCH</code> (e.g., 2.4.1), where MAJOR is breaking changes, MINOR is backward-compatible features, and PATCH is bug fixes.</p><ul><li><strong>^1.2.3</strong> — allows updates that don't change the leftmost non-zero digit (1.x.x), so minor and patch updates.</li><li><strong>~1.2.3</strong> — allows patch updates only (1.2.x).</li></ul><p>Exact versions (e.g., <code>1.2.3</code>) pin precisely. The lockfile (<code>package-lock.json</code>) records the exact resolved versions.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is package-lock.json and why is it important?",
+    "answer": "<p><strong>package-lock.json</strong> records the exact version, location, and integrity hash of every installed package (including transitive dependencies). It ensures <strong>reproducible installs</strong> so every developer and CI environment gets an identical dependency tree.</p><p>It should be committed to version control. Running <code>npm ci</code> installs strictly from the lockfile, which is faster and safer for CI than <code>npm install</code>.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the difference between npm install and npm ci?",
+    "answer": "<p><code>npm install</code> reads package.json, resolves dependencies, may update package-lock.json, and installs into an existing node_modules. <code>npm ci</code> (clean install) installs strictly from package-lock.json, <strong>deletes node_modules first</strong>, never modifies the lockfile, and fails if the lockfile and package.json are out of sync.</p><p><code>npm ci</code> is faster and deterministic, making it the recommended choice for CI/CD pipelines and production builds.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is an EventEmitter in Node.js and how is it used?",
+    "answer": "<p><strong>EventEmitter</strong> is a core class (from the <code>events</code> module) that implements the observer pattern, allowing objects to emit named events and register listeners for them. Many Node.js core objects (streams, HTTP servers) inherit from it.</p><pre><code>const EventEmitter = require('events');\nconst emitter = new EventEmitter();\nemitter.on('greet', name =&gt; console.log(`Hello ${name}`));\nemitter.emit('greet', 'Alice');</code></pre><p>Methods include <code>on</code>, <code>once</code>, <code>emit</code>, and <code>removeListener</code>. It is foundational to Node's event-driven architecture.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What are streams in Node.js and what types exist?",
+    "answer": "<p><strong>Streams</strong> are abstractions for handling data piece-by-piece (in chunks) rather than loading it all into memory, which is memory-efficient for large data. There are four types:</p><ul><li><strong>Readable</strong> — source of data (e.g., <code>fs.createReadStream</code>).</li><li><strong>Writable</strong> — destination (e.g., <code>fs.createWriteStream</code>).</li><li><strong>Duplex</strong> — both readable and writable (e.g., TCP sockets).</li><li><strong>Transform</strong> — duplex that modifies data passing through (e.g., zlib gzip).</li></ul>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the pipe() method and how does it help with streams?",
+    "answer": "<p><code>pipe()</code> connects a readable stream to a writable stream, automatically managing data flow and <strong>backpressure</strong> (pausing the source when the destination is overwhelmed). It greatly simplifies stream handling.</p><pre><code>const fs = require('fs');\nfs.createReadStream('input.txt')\n  .pipe(fs.createWriteStream('output.txt'));</code></pre><p>For robust error handling, prefer <code>stream.pipeline()</code>, which propagates errors and cleans up resources automatically, unlike a raw <code>pipe()</code> chain.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is backpressure in streams and how is it handled?",
+    "answer": "<p><strong>Backpressure</strong> occurs when a writable stream cannot consume data as fast as a readable stream produces it, risking memory buildup. Node.js handles this by having <code>write()</code> return <code>false</code> when the internal buffer is full, signaling the producer to pause until the <code>'drain'</code> event fires.</p><p>The <code>pipe()</code> method and <code>stream.pipeline()</code> handle backpressure automatically, which is the recommended approach rather than managing it manually.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is a Buffer in Node.js and why is it needed?",
+    "answer": "<p>A <strong>Buffer</strong> is a fixed-length container for raw binary data, allocated outside the V8 heap. It is needed because JavaScript strings handle text (encoded characters) but not raw bytes from files, network packets, or binary protocols.</p><pre><code>const buf = Buffer.from('Hello', 'utf8');\nconsole.log(buf);            // &lt;Buffer 48 65 6c 6c 6f&gt;\nconsole.log(buf.toString()); // Hello</code></pre><p>Use <code>Buffer.alloc(size)</code> to create zero-filled buffers safely; avoid the deprecated <code>new Buffer()</code> constructor.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the difference between Buffer.alloc() and Buffer.allocUnsafe()?",
+    "answer": "<p><code>Buffer.alloc(size)</code> creates a buffer that is <strong>initialized with zeros</strong>, making it safe but slightly slower. <code>Buffer.allocUnsafe(size)</code> allocates memory <strong>without initializing it</strong>, so it may contain old, potentially sensitive data from previous allocations.</p><p><code>allocUnsafe</code> is faster but you must overwrite the entire buffer before use to avoid leaking data. Prefer <code>alloc</code> unless performance is critical and you immediately fill the buffer.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How do you read and write files in Node.js using the fs module?",
+    "answer": "<p>The <strong>fs</strong> module provides synchronous, callback, and Promise-based APIs for file operations.</p><pre><code>const fs = require('fs/promises');\n// Async/await with promises API\nasync function run() {\n  await fs.writeFile('out.txt', 'Hello');\n  const data = await fs.readFile('out.txt', 'utf8');\n  console.log(data);\n}\nrun();</code></pre><p>Use <code>fs.promises</code> (or <code>require('fs/promises')</code>) for modern async code, and streams for large files to avoid loading everything into memory.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How do you create a basic HTTP server using the core http module?",
+    "answer": "<p>Node.js provides the built-in <code>http</code> module to create servers without external dependencies.</p><pre><code>const http = require('http');\nconst server = http.createServer((req, res) =&gt; {\n  res.writeHead(200, { 'Content-Type': 'application/json' });\n  res.end(JSON.stringify({ message: 'Hello World' }));\n});\nserver.listen(3000, () =&gt; console.log('Listening on 3000'));</code></pre><p>The callback receives a request (<code>IncomingMessage</code>) and response (<code>ServerResponse</code>) object. Frameworks like Express build on top of this module.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is process.env and how is it used for configuration?",
+    "answer": "<p><code>process.env</code> is an object containing the user's <strong>environment variables</strong>. It is the standard way to externalize configuration (secrets, ports, database URLs) so the same code runs across environments without hard-coding values.</p><pre><code>const port = process.env.PORT || 3000;\nconst dbUrl = process.env.DATABASE_URL;</code></pre><p>Tools like <strong>dotenv</strong> load variables from a <code>.env</code> file during development. Never commit secrets to source control.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the process object in Node.js and what are some useful properties?",
+    "answer": "<p><code>process</code> is a global object that provides information about and control over the current Node.js process. Useful members include:</p><ul><li><code>process.argv</code> — command-line arguments.</li><li><code>process.env</code> — environment variables.</li><li><code>process.pid</code> — the process ID.</li><li><code>process.cwd()</code> — current working directory.</li><li><code>process.exit(code)</code> — terminate the process.</li><li><code>process.on('exit'|'SIGTERM'|...)</code> — lifecycle and signal events.</li></ul>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How do you read command-line arguments in Node.js?",
+    "answer": "<p>Command-line arguments are available in <code>process.argv</code>, an array where index 0 is the Node executable, index 1 is the script path, and subsequent entries are user arguments.</p><pre><code>// node app.js --name Alice\nconsole.log(process.argv);\n// [ 'node', '/path/app.js', '--name', 'Alice' ]\nconst args = process.argv.slice(2);</code></pre><p>For complex parsing, use libraries like <strong>yargs</strong> or <strong>commander</strong>, or Node's built-in <code>util.parseArgs</code>.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is middleware in Express and how does it work?",
+    "answer": "<p><strong>Middleware</strong> functions are functions that have access to the request, response, and the <code>next</code> function in the request-response cycle. They can execute code, modify req/res, end the cycle, or call <code>next()</code> to pass control to the next middleware.</p><pre><code>app.use((req, res, next) =&gt; {\n  console.log(`${req.method} ${req.url}`);\n  next();\n});</code></pre><p>Middleware runs in the order it is defined and is used for logging, authentication, body parsing, error handling, and more.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How do you create a basic REST API endpoint in Express?",
+    "answer": "<p>Express maps HTTP methods and paths to handler functions.</p><pre><code>const express = require('express');\nconst app = express();\napp.use(express.json());\n\napp.get('/users/:id', (req, res) =&gt; {\n  res.json({ id: req.params.id });\n});\napp.post('/users', (req, res) =&gt; {\n  res.status(201).json(req.body);\n});\napp.listen(3000);</code></pre><p>Use <code>req.params</code> for route params, <code>req.query</code> for query strings, and <code>req.body</code> for the parsed request body.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What are the main principles of a RESTful API?",
+    "answer": "<p>REST (Representational State Transfer) is an architectural style based on key principles:</p><ul><li><strong>Statelessness</strong> — each request contains all needed information; the server stores no session state.</li><li><strong>Resource-based URLs</strong> — nouns identify resources (e.g., <code>/users/1</code>).</li><li><strong>HTTP methods</strong> — GET, POST, PUT, PATCH, DELETE map to CRUD operations.</li><li><strong>Proper status codes</strong> — 200, 201, 400, 404, 500, etc.</li><li><strong>Uniform interface</strong> and representations (commonly JSON).</li></ul>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the difference between PUT and PATCH in a REST API?",
+    "answer": "<p><strong>PUT</strong> replaces the entire resource with the provided representation; it is idempotent and expects the full object. <strong>PATCH</strong> applies a partial update, modifying only the specified fields.</p><pre><code>PUT /users/1   { \"name\": \"Alice\", \"age\": 30 }  // replaces whole user\nPATCH /users/1 { \"age\": 31 }                  // updates only age</code></pre><p>Use PUT when sending a complete resource and PATCH for partial modifications.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How do you handle errors in Express applications?",
+    "answer": "<p>Express recognizes <strong>error-handling middleware</strong> by its four arguments: <code>(err, req, res, next)</code>. Errors thrown in synchronous handlers or passed to <code>next(err)</code> are routed to it.</p><pre><code>app.use((err, req, res, next) =&gt; {\n  console.error(err.stack);\n  res.status(err.status || 500).json({ error: err.message });\n});</code></pre><p>In Express 4, async errors must be passed via <code>next(err)</code> (or use a wrapper); Express 5 handles rejected Promises from async handlers automatically.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the difference between an operational error and a programmer error in Node.js?",
+    "answer": "<p><strong>Operational errors</strong> are expected runtime problems in correctly written programs — failed network requests, invalid user input, file not found. They should be handled gracefully (retry, respond with an error code). <strong>Programmer errors</strong> are bugs — passing wrong types, reading undefined properties, or forgetting to handle a Promise.</p><p>Operational errors are recoverable and should be caught; programmer errors usually indicate the process is in an unknown state, so it is often safest to log, crash, and restart via a process manager.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How do you handle uncaught exceptions and unhandled promise rejections?",
+    "answer": "<p>Node.js emits <code>uncaughtException</code> and <code>unhandledRejection</code> events on the <code>process</code> object as last-resort safety nets.</p><pre><code>process.on('uncaughtException', err =&gt; {\n  console.error('Uncaught:', err);\n  process.exit(1); // restart via PM2/cluster\n});\nprocess.on('unhandledRejection', reason =&gt; {\n  console.error('Unhandled rejection:', reason);\n});</code></pre><p>These should be used for logging and graceful shutdown, not to keep running indefinitely, since the app may be in a corrupt state.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the cluster module and when would you use it?",
+    "answer": "<p>The <strong>cluster</strong> module lets you fork multiple Node.js worker processes that share the same server port, allowing a single-threaded app to utilize <strong>multiple CPU cores</strong>. The master process distributes incoming connections among workers.</p><pre><code>const cluster = require('cluster');\nconst os = require('os');\nif (cluster.isPrimary) {\n  os.cpus().forEach(() =&gt; cluster.fork());\n} else {\n  require('./server'); // each worker runs the app\n}</code></pre><p>It is used to scale I/O-bound apps across cores. PM2's cluster mode automates this.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What are worker_threads and how do they differ from the cluster module?",
+    "answer": "<p><strong>worker_threads</strong> run JavaScript in parallel threads within a single process, sharing memory via <code>SharedArrayBuffer</code> and communicating through message passing. They are designed for <strong>CPU-intensive tasks</strong> (image processing, encryption, parsing) that would otherwise block the event loop.</p><p>The <strong>cluster</strong> module forks separate processes (each with its own memory and event loop) mainly to scale I/O across cores. Use worker_threads for CPU-bound work and cluster for scaling network throughput.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the child_process module and what methods does it provide?",
+    "answer": "<p>The <strong>child_process</strong> module lets you spawn external processes and run system commands. Its main methods are:</p><ul><li><code>spawn</code> — launches a command with streamed I/O; good for large output.</li><li><code>exec</code> — runs a command in a shell and buffers output; convenient for small output.</li><li><code>execFile</code> — runs an executable directly without a shell.</li><li><code>fork</code> — spawns a new Node.js process with an IPC channel for messaging.</li></ul><pre><code>const { spawn } = require('child_process');\nconst ls = spawn('ls', ['-lh']);\nls.stdout.on('data', d =&gt; console.log(d.toString()));</code></pre>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the difference between spawn and exec in child_process?",
+    "answer": "<p><code>spawn</code> launches a process and returns <strong>streams</strong> for stdout/stderr, making it ideal for large or continuous output since data is processed incrementally. <code>exec</code> runs the command in a shell and <strong>buffers the entire output</strong> in memory, passing it to a callback — convenient but risky for large output (it has a default buffer limit).</p><p>Use <code>spawn</code> for streaming/large data and long-running processes; use <code>exec</code> for simple, short commands. Avoid passing untrusted input to <code>exec</code> due to shell injection risk.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is a memory leak in Node.js and what are common causes?",
+    "answer": "<p>A <strong>memory leak</strong> occurs when memory that is no longer needed is not released, causing usage to grow over time until the process crashes or slows down. Common causes include:</p><ul><li>Unbounded global variables or caches that never evict entries.</li><li>Forgotten event listeners (not removed), causing accumulation.</li><li>Closures holding references to large objects.</li><li>Unresolved Promises or timers keeping references alive.</li></ul><p>They are diagnosed with heap snapshots (Chrome DevTools, <code>--inspect</code>) and tools like clinic.js.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How does garbage collection work in Node.js / V8?",
+    "answer": "<p>V8 uses a <strong>generational, mark-and-sweep garbage collector</strong>. The heap is split into a <strong>young generation</strong> (new space) where short-lived objects are collected frequently and quickly (Scavenge), and an <strong>old generation</strong> for objects that survive, collected less often with the more expensive Mark-Sweep-Compact algorithm.</p><p>GC automatically reclaims objects with no reachable references. You can observe it via <code>--trace-gc</code> and influence heap size with <code>--max-old-space-size</code>. Avoiding leaks reduces GC pressure and pauses.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How can you detect and debug a memory leak in a Node.js application?",
+    "answer": "<p>You can profile memory by starting Node with <code>--inspect</code> and capturing <strong>heap snapshots</strong> in Chrome DevTools, then comparing snapshots over time to find growing object retainers. Monitoring <code>process.memoryUsage()</code> (heapUsed, rss) helps confirm a trend.</p><pre><code>setInterval(() =&gt; {\n  const m = process.memoryUsage();\n  console.log(`heapUsed: ${(m.heapUsed/1e6).toFixed(1)} MB`);\n}, 5000);</code></pre><p>Tools like <strong>clinic.js</strong>, <strong>heapdump</strong>, and <code>--trace-gc</code> further help isolate the leaking allocation.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is JWT and how is it used for authentication in Node.js?",
+    "answer": "<p><strong>JWT (JSON Web Token)</strong> is a compact, signed token that securely transmits claims between parties. It has three parts: <strong>header.payload.signature</strong>. After login, the server issues a signed token; the client sends it in the <code>Authorization: Bearer</code> header on subsequent requests, and the server verifies the signature to authenticate without server-side session storage.</p><pre><code>const jwt = require('jsonwebtoken');\nconst token = jwt.sign({ userId: 1 }, process.env.SECRET, { expiresIn: '1h' });\nconst decoded = jwt.verify(token, process.env.SECRET);</code></pre>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What are the security concerns with JWTs and how do you mitigate them?",
+    "answer": "<p>Key concerns include: tokens cannot be easily revoked before expiry, the payload is only base64-encoded (not encrypted, so no secrets inside), and the <code>alg: none</code> or algorithm-confusion attacks. Mitigations:</p><ul><li>Use short expiration times plus refresh tokens, and maintain a revocation/blocklist if needed.</li><li>Always verify the algorithm explicitly; never trust the token's <code>alg</code> header blindly.</li><li>Store tokens securely (HttpOnly cookies) and use HTTPS to prevent interception.</li><li>Keep secrets strong and rotate them.</li></ul>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is Helmet and how does it improve Express security?",
+    "answer": "<p><strong>Helmet</strong> is Express middleware that sets various HTTP security headers to protect against common web vulnerabilities. It configures headers like <code>Content-Security-Policy</code>, <code>X-Content-Type-Options</code>, <code>Strict-Transport-Security</code>, and removes the revealing <code>X-Powered-By</code> header.</p><pre><code>const helmet = require('helmet');\napp.use(helmet());</code></pre><p>This mitigates risks such as clickjacking, MIME-sniffing, and some XSS vectors with minimal configuration.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is rate limiting and how do you implement it in Express?",
+    "answer": "<p><strong>Rate limiting</strong> restricts how many requests a client can make in a time window, protecting against brute-force attacks, abuse, and DDoS. In Express, the <code>express-rate-limit</code> middleware is commonly used.</p><pre><code>const rateLimit = require('express-rate-limit');\nconst limiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 100                  // limit each IP to 100 requests\n});\napp.use(limiter);</code></pre><p>For distributed systems, back the limiter with Redis so limits are shared across instances.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What are some common security best practices for Node.js applications?",
+    "answer": "<ul><li>Validate and sanitize all user input to prevent injection (SQL, NoSQL, command).</li><li>Use <strong>Helmet</strong> for security headers and enforce HTTPS.</li><li>Keep dependencies updated and run <code>npm audit</code> to catch known vulnerabilities.</li><li>Store secrets in environment variables, never in code.</li><li>Hash passwords with <strong>bcrypt</strong> or <strong>argon2</strong>, never store plaintext.</li><li>Apply rate limiting, CSRF protection, and the principle of least privilege.</li><li>Avoid <code>eval</code> and unsanitized <code>child_process.exec</code>.</li></ul>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How do you securely store passwords in a Node.js application?",
+    "answer": "<p>Never store passwords in plaintext or with fast/reversible hashes. Use a <strong>slow, salted hashing algorithm</strong> designed for passwords, such as <strong>bcrypt</strong>, <strong>scrypt</strong>, or <strong>argon2</strong>. These automatically generate a unique salt and are computationally expensive to resist brute-force attacks.</p><pre><code>const bcrypt = require('bcrypt');\nconst hash = await bcrypt.hash(password, 12);\nconst match = await bcrypt.compare(input, hash);</code></pre><p>The cost factor (e.g., 12) should be tuned to be slow enough to deter attackers but acceptable for users.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is caching and how can you implement it in a Node.js application?",
+    "answer": "<p><strong>Caching</strong> stores frequently accessed data in fast storage to reduce expensive computations or database calls, improving response time and scalability. Common strategies include in-memory caches (a Map or <code>node-cache</code>), distributed caches like <strong>Redis</strong>, and HTTP caching via headers.</p><pre><code>const redis = require('redis');\nconst client = redis.createClient();\nawait client.set('user:1', JSON.stringify(user), { EX: 3600 });\nconst cached = await client.get('user:1');</code></pre><p>Redis is preferred for multi-instance deployments since the cache is shared and survives restarts.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "Why is Redis commonly used with Node.js and what are its use cases?",
+    "answer": "<p><strong>Redis</strong> is an in-memory key-value data store that pairs well with Node.js for low-latency, shared state across multiple instances. Common use cases:</p><ul><li><strong>Caching</strong> database query results and API responses.</li><li><strong>Session storage</strong> for stateless app servers.</li><li><strong>Rate limiting</strong> counters shared across instances.</li><li><strong>Pub/Sub messaging</strong> and queues (e.g., with BullMQ).</li><li><strong>Leaderboards</strong> and real-time analytics via sorted sets.</li></ul>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is PM2 and what features does it provide?",
+    "answer": "<p><strong>PM2</strong> is a production process manager for Node.js applications. It keeps apps alive by restarting them on crash, enables <strong>cluster mode</strong> to use all CPU cores, supports zero-downtime reloads, and provides log management and monitoring.</p><pre><code>pm2 start app.js -i max   # cluster mode, one worker per core\npm2 list\npm2 logs\npm2 reload app            # zero-downtime reload</code></pre><p>It also handles startup scripts so apps relaunch after a server reboot.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How do you horizontally scale a Node.js application?",
+    "answer": "<p>Because Node.js is single-threaded, scaling involves running <strong>multiple instances</strong> and distributing load. Approaches include:</p><ul><li>The <strong>cluster</strong> module or <strong>PM2</strong> to use all CPU cores on one machine.</li><li>Running multiple servers behind a <strong>load balancer</strong> (Nginx, ALB).</li><li>Containerizing with Docker and orchestrating via Kubernetes for auto-scaling.</li></ul><p>Keep the app <strong>stateless</strong> — store sessions/cache in Redis and files in object storage — so any instance can handle any request.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How do you debug a Node.js application?",
+    "answer": "<p>Node.js has a built-in inspector. Start the app with <code>node --inspect app.js</code> (or <code>--inspect-brk</code> to break on the first line), then connect Chrome DevTools via <code>chrome://inspect</code> or use VS Code's debugger to set breakpoints, step through code, and inspect variables.</p><p>Other techniques include structured logging (Winston, Pino), the built-in <code>node --inspect</code> profiler, the <code>debug</code> module, and <code>console.log</code> for quick checks. For performance issues, use clinic.js or the V8 profiler.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What are some techniques to improve Node.js application performance?",
+    "answer": "<ul><li>Use <strong>asynchronous, non-blocking</strong> code and avoid sync I/O in request paths.</li><li>Offload CPU-bound work to <strong>worker_threads</strong> or a separate service.</li><li>Implement <strong>caching</strong> (Redis, in-memory) for expensive operations.</li><li>Use <strong>clustering/PM2</strong> to leverage all CPU cores.</li><li>Enable gzip/Brotli compression and use streaming for large responses.</li><li>Optimize database queries and use connection pooling.</li><li>Profile with clinic.js or <code>--prof</code> to find bottlenecks.</li></ul>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What are microservices and what are their benefits and drawbacks?",
+    "answer": "<p><strong>Microservices</strong> is an architecture where an application is split into small, independently deployable services, each owning a specific business capability and communicating over the network (HTTP/REST, gRPC, or message queues).</p><p><strong>Benefits:</strong> independent scaling and deployment, technology flexibility, fault isolation, and team autonomy. <strong>Drawbacks:</strong> increased operational complexity, network latency, distributed data consistency challenges, and harder debugging/monitoring compared to a monolith.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "How do microservices typically communicate, and what is the difference between synchronous and asynchronous communication?",
+    "answer": "<p>Microservices communicate either <strong>synchronously</strong> or <strong>asynchronously</strong>. Synchronous communication (HTTP/REST, gRPC) means the caller waits for a response, which is simple but creates tight coupling and cascading-failure risk. Asynchronous communication uses <strong>message brokers</strong> (RabbitMQ, Kafka, Redis) where services publish/consume events without waiting.</p><p>Async/event-driven messaging improves resilience and decoupling, while sync calls are easier to reason about for request-response flows. Patterns like circuit breakers and retries help manage synchronous failures.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the difference between blocking the event loop and CPU-bound work, and how do you handle CPU-bound tasks?",
+    "answer": "<p>Because Node.js runs JavaScript on a single thread, a <strong>CPU-bound task</strong> (heavy computation, large JSON parsing, cryptographic loops) blocks the event loop, stalling all other requests until it finishes. This is different from I/O, which is offloaded and non-blocking.</p><p>To handle CPU-bound work, offload it to <strong>worker_threads</strong>, a <strong>child_process</strong>, or an external service/queue, and break large synchronous operations into smaller chunks (e.g., using <code>setImmediate</code>) so the loop stays responsive.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is graceful shutdown and how do you implement it in Node.js?",
+    "answer": "<p><strong>Graceful shutdown</strong> means stopping a process cleanly — finishing in-flight requests, closing database connections and servers — before exiting, rather than abruptly killing connections. It is triggered by listening for termination signals like <code>SIGTERM</code> and <code>SIGINT</code>.</p><pre><code>process.on('SIGTERM', async () =&gt; {\n  server.close(() =&gt; console.log('HTTP server closed'));\n  await db.disconnect();\n  process.exit(0);\n});</code></pre><p>This is essential in containerized/orchestrated environments (Docker, Kubernetes) to avoid dropped requests during deploys and scaling.</p>",
+    "category": "nodejs"
+  },
+  {
+    "question": "What is the global object in Node.js and how does it differ from the browser's window object?",
+    "answer": "<p>In Node.js, the top-level scope is the <strong>module scope</strong>, not the global scope, and the global object is named <code>global</code> (or the standardized <code>globalThis</code>). It exposes globals like <code>process</code>, <code>Buffer</code>, <code>setTimeout</code>, and <code>console</code>.</p><p>Unlike the browser's <code>window</code>, variables declared at the top of a Node module are scoped to that module, not attached to <code>global</code>. Each file is wrapped in a function, so it also has module-specific variables like <code>__dirname</code>, <code>__filename</code>, <code>require</code>, <code>module</code>, and <code>exports</code>.</p>",
+    "category": "nodejs"
+  }
+]

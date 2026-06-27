@@ -1,47 +1,47 @@
+import { Youtube, Instagram, Globe } from "lucide-react";
+
 export default function Footer() {
-    return (
-        <footer className="site-footer">
-            <div className="footer-inner">
-                <div className="app-title">
-                    <h1>
-                        <span className="accent">Interview</span>WithJangir
-                    </h1>
+  return (
+    <footer className="site-footer">
+      <div className="footer-inner">
+        <div className="footer-brand">
+          <h2 className="footer-title">
+            <span className="accent">Interview</span>WithJangir
+          </h2>
+          <p className="footer-tagline">
+            Your personal tech interview question bank — curated answers to help
+            you prepare with confidence.
+          </p>
+        </div>
 
-                </div>
-                <p className="footer-tagline">
-                    Your personal tech interview question bank.
-                </p>
-                <div className="footer-links">
-                    <a
-                        href="https://youtube.com/@codewithjangir"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        CodeWithJangir YouTube
-                    </a>
+        <div className="footer-links">
+          <a
+            href="https://youtube.com/@codewithjangir"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Youtube size={15} /> CodeWithJangir on YouTube
+          </a>
+          <a
+            href="https://instagram.com/codewithjangir"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Instagram size={15} /> CodeWithJangir on Instagram
+          </a>
+          <a
+            href="https://www.codewithjangir.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Globe size={15} /> codewithjangir.com
+          </a>
+        </div>
+      </div>
 
-                    <a
-                        href="https://instagram.com/codewithjangir"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        CodeWithJangir Instagram
-                    </a>
-
-                    <a
-                        href="https://www.codewithjangir.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        CodeWithJangir Website
-                    </a>
-                </div>
-
-            </div>
-
-            <div className="footer-bottom">
-                © {new Date().getFullYear()} InterviewWithJangir · Powered by CodeWithJangir
-            </div>
-        </footer>
-    );
+      <div className="footer-bottom">
+        © {new Date().getFullYear()} InterviewWithJangir · Powered by CodeWithJangir
+      </div>
+    </footer>
+  );
 }

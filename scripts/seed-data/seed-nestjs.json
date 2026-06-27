@@ -1,0 +1,302 @@
+[
+  {
+    "question": "What is NestJS and what problem does it solve?",
+    "answer": "<p><strong>NestJS</strong> is a progressive Node.js framework for building efficient, scalable server-side applications. It is built with and fully supports TypeScript, and uses a modular, opinionated architecture inspired by Angular.</p><p>It solves the problem of unstructured Node.js codebases by providing out-of-the-box architecture (modules, controllers, providers) and patterns like dependency injection, making large applications testable, maintainable, and loosely coupled. Under the hood it uses Express by default but can also run on Fastify.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is a module in NestJS and what is the @Module decorator?",
+    "answer": "<p>A <strong>module</strong> is a class annotated with the <code>@Module()</code> decorator that organizes related components. Nest uses modules to structure the application into cohesive blocks of functionality.</p><p>The decorator accepts <code>imports</code> (other modules), <code>controllers</code>, <code>providers</code>, and <code>exports</code> (providers shared with other modules).</p><pre><code>@Module({\n  imports: [UsersModule],\n  controllers: [CatsController],\n  providers: [CatsService],\n  exports: [CatsService],\n})\nexport class CatsModule {}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is a controller in NestJS?",
+    "answer": "<p>A <strong>controller</strong> handles incoming requests and returns responses to the client. It is defined with the <code>@Controller()</code> decorator, which can take a route prefix.</p><p>Methods inside are mapped to routes using HTTP method decorators like <code>@Get()</code>, <code>@Post()</code>, etc.</p><pre><code>@Controller('cats')\nexport class CatsController {\n  @Get()\n  findAll(): string {\n    return 'This returns all cats';\n  }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What are providers in NestJS?",
+    "answer": "<p><strong>Providers</strong> are classes that can be injected as dependencies, such as services, repositories, factories, or helpers. They are typically marked with the <code>@Injectable()</code> decorator so Nest's IoC container can manage them.</p><p>The core idea is that providers encapsulate business logic and are injected into controllers or other providers rather than being instantiated manually.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is dependency injection in NestJS and how does it work?",
+    "answer": "<p><strong>Dependency Injection (DI)</strong> is a design pattern where a class receives its dependencies from an external source rather than creating them itself. Nest has a built-in IoC container that resolves dependencies at runtime.</p><p>When you inject a provider via the constructor, Nest looks up the token (usually the class type) in the container and supplies the instance automatically.</p><pre><code>@Injectable()\nexport class CatsService {\n  constructor(private readonly httpService: HttpService) {}\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is the @Injectable() decorator used for?",
+    "answer": "<p>The <code>@Injectable()</code> decorator marks a class as a provider that can be managed by Nest's IoC container, meaning it can be injected into other classes and can itself receive injected dependencies.</p><p>Without it, Nest cannot read the class's metadata to resolve its constructor dependencies. It also accepts options like injection scope.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is the difference between @Query, @Param, and @Body decorators?",
+    "answer": "<ul><li><strong>@Param()</strong> extracts route parameters from the URL path (e.g. <code>/users/:id</code>).</li><li><strong>@Query()</strong> extracts query string parameters (e.g. <code>?page=2</code>).</li><li><strong>@Body()</strong> extracts the parsed request body, typically used in POST/PUT/PATCH requests.</li></ul><p>Each can be used with a key to extract a single value, or without arguments to get the whole object.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is a DTO (Data Transfer Object) in NestJS?",
+    "answer": "<p>A <strong>DTO</strong> is an object that defines the shape of data sent over the network, typically for request bodies. It is usually a class so it can carry validation decorators and be used at runtime.</p><pre><code>export class CreateCatDto {\n  name: string;\n  age: number;\n  breed: string;\n}</code></pre><p>Using a class (not an interface) is important because interfaces are erased at compile time and cannot be used by the validation pipe.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you validate incoming request data in NestJS?",
+    "answer": "<p>Nest uses the <strong>ValidationPipe</strong> together with the <code>class-validator</code> and <code>class-transformer</code> libraries. You decorate DTO properties with validation rules and enable the pipe globally.</p><pre><code>app.useGlobalPipes(new ValidationPipe());\n\nexport class CreateUserDto {\n  @IsEmail()\n  email: string;\n  @MinLength(8)\n  password: string;\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is a pipe in NestJS?",
+    "answer": "<p>A <strong>pipe</strong> is a class implementing <code>PipeTransform</code> that runs before a route handler to either <strong>transform</strong> input data into a desired form or <strong>validate</strong> it (throwing an exception if invalid).</p><p>Built-in pipes include <code>ValidationPipe</code>, <code>ParseIntPipe</code>, and <code>ParseUUIDPipe</code>. They can be applied at the parameter, handler, controller, or global level.</p><pre><code>@Get(':id')\nfindOne(@Param('id', ParseIntPipe) id: number) {}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is a guard in NestJS and when does it execute?",
+    "answer": "<p>A <strong>guard</strong> is a class implementing <code>CanActivate</code> that determines whether a request should be handled by the route handler, returning a boolean (or promise/observable of one). It is the primary tool for authentication and authorization.</p><p>Guards execute after middleware but before pipes and interceptors. Returning <code>false</code> automatically throws a <code>ForbiddenException</code>.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is an interceptor in NestJS?",
+    "answer": "<p>An <strong>interceptor</strong> implements <code>NestInterceptor</code> and can run logic before and after the route handler executes. It wraps the handler using RxJS, allowing you to transform results, bind extra logic, override behavior, or handle timeouts/logging.</p><pre><code>@Injectable()\nexport class LoggingInterceptor implements NestInterceptor {\n  intercept(ctx: ExecutionContext, next: CallHandler) {\n    return next.handle().pipe(tap(() =&gt; console.log('After...')));\n  }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is middleware in NestJS and how is it different from a guard?",
+    "answer": "<p><strong>Middleware</strong> is a function that runs before the route handler and has access to the <code>req</code>, <code>res</code>, and <code>next</code> objects, just like Express middleware. It is configured in a module's <code>configure()</code> method.</p><p>Unlike guards, middleware has no access to the <code>ExecutionContext</code> (it doesn't know which handler will run) and runs earlier in the request lifecycle. Guards are designed specifically for authorization decisions.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is an exception filter in NestJS?",
+    "answer": "<p>An <strong>exception filter</strong> is a class implementing <code>ExceptionFilter</code> that catches unhandled exceptions and lets you control the response sent to the client. It is bound using the <code>@Catch()</code> decorator.</p><pre><code>@Catch(HttpException)\nexport class HttpExceptionFilter implements ExceptionFilter {\n  catch(exception: HttpException, host: ArgumentsHost) {\n    const ctx = host.switchToHttp();\n    // customize response\n  }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you make a provider available to other modules?",
+    "answer": "<p>You must add the provider to the <code>exports</code> array of its module, and then <code>import</code> that module wherever the provider is needed.</p><pre><code>@Module({\n  providers: [CatsService],\n  exports: [CatsService],\n})\nexport class CatsModule {}</code></pre><p>Without exporting, the provider is private to its declaring module and cannot be injected elsewhere.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is the ConfigModule and why use it?",
+    "answer": "<p><code>ConfigModule</code> from <code>@nestjs/config</code> manages environment variables and configuration in a structured, type-safe way. It loads <code>.env</code> files and exposes values through a <code>ConfigService</code>.</p><pre><code>@Module({\n  imports: [ConfigModule.forRoot({ isGlobal: true })],\n})\nexport class AppModule {}\n\n// usage\nthis.config.get&lt;string&gt;('DATABASE_URL');</code></pre><p>Setting <code>isGlobal: true</code> makes the ConfigService available everywhere without re-importing.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you read environment variables using ConfigService?",
+    "answer": "<p>Inject <code>ConfigService</code> and call its <code>get()</code> method with the variable key.</p><pre><code>@Injectable()\nexport class AppService {\n  constructor(private config: ConfigService) {}\n  getDb() {\n    return this.config.get&lt;string&gt;('DATABASE_URL');\n  }\n}</code></pre><p>You can supply a default value as the second argument, and use <code>getOrThrow()</code> to fail fast when a required variable is missing.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What are lifecycle hooks in NestJS?",
+    "answer": "<p><strong>Lifecycle hooks</strong> let you run code at specific moments in the lifetime of modules and providers. Key hooks include <code>onModuleInit</code>, <code>onApplicationBootstrap</code>, <code>onModuleDestroy</code>, <code>beforeApplicationShutdown</code>, and <code>onApplicationShutdown</code>.</p><pre><code>@Injectable()\nexport class Svc implements OnModuleInit {\n  onModuleInit() {\n    console.log('Module initialized');\n  }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What are the different ways to apply pipes, guards, and interceptors?",
+    "answer": "<p>They can be bound at four levels:</p><ul><li><strong>Method-scoped</strong> via the <code>@UsePipes()</code>/<code>@UseGuards()</code>/<code>@UseInterceptors()</code> decorator on a handler.</li><li><strong>Controller-scoped</strong> by decorating the controller class.</li><li><strong>Global</strong> via <code>app.useGlobalPipes()</code> etc.</li><li><strong>Global with DI</strong> by providing them with tokens like <code>APP_GUARD</code> in a module.</li></ul>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is the whitelist option in ValidationPipe?",
+    "answer": "<p>The <code>whitelist: true</code> option strips any properties from the incoming payload that do not have validation decorators in the DTO, protecting against over-posting.</p><p>Combining it with <code>forbidNonWhitelisted: true</code> makes the request fail with an error instead of silently stripping unknown properties.</p><pre><code>new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true });</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What does the transform option do in ValidationPipe?",
+    "answer": "<p>The <code>transform: true</code> option automatically transforms incoming payloads into instances of their DTO classes using <code>class-transformer</code>, and also performs primitive type conversion (e.g. string path params to numbers).</p><pre><code>new ValidationPipe({ transform: true });</code></pre><p>This means a parameter typed as <code>number</code> will receive an actual number instead of a string.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you integrate TypeORM with NestJS and inject a repository?",
+    "answer": "<p>Install <code>@nestjs/typeorm</code> and configure the connection with <code>TypeOrmModule.forRoot()</code>, then register entities per feature with <code>TypeOrmModule.forFeature()</code>. Inject the repository with <code>@InjectRepository()</code>.</p><pre><code>@Injectable()\nexport class UsersService {\n  constructor(\n    @InjectRepository(User)\n    private usersRepo: Repository&lt;User&gt;,\n  ) {}\n}</code></pre><p>The repository provides methods like <code>find()</code>, <code>findOne()</code>, <code>save()</code>, and <code>delete()</code>.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you integrate Prisma with NestJS?",
+    "answer": "<p>Prisma is integrated by wrapping <code>PrismaClient</code> in an injectable service that connects on module init, then exporting it from a Prisma module.</p><pre><code>@Injectable()\nexport class PrismaService extends PrismaClient implements OnModuleInit {\n  async onModuleInit() {\n    await this.$connect();\n  }\n}</code></pre><p>You inject <code>PrismaService</code> into other services to run queries like <code>this.prisma.user.findMany()</code>.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is a custom provider in NestJS and what are useClass, useValue, and useFactory?",
+    "answer": "<p>A <strong>custom provider</strong> controls how a dependency is created and bound to a token.</p><ul><li><strong>useClass</strong> instantiates a given class for the token, allowing implementation swapping.</li><li><strong>useValue</strong> binds a static value or object (e.g. config or a test mock).</li><li><strong>useFactory</strong> calls a function to produce the value, supporting async logic and injected dependencies via the <code>inject</code> array.</li></ul><pre><code>{ provide: 'ASYNC', useFactory: async (cfg) =&gt; {}, inject: [ConfigService] }</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is a dynamic module in NestJS?",
+    "answer": "<p>A <strong>dynamic module</strong> is a module that returns its metadata at runtime via a static method (conventionally <code>forRoot()</code> or <code>register()</code>), allowing it to be configured with options when imported.</p><pre><code>@Module({})\nexport class ConfigModule {\n  static forRoot(opts): DynamicModule {\n    return {\n      module: ConfigModule,\n      providers: [{ provide: 'OPTIONS', useValue: opts }],\n      exports: ['OPTIONS'],\n    };\n  }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is the difference between forRoot, forFeature, and forRootAsync conventions?",
+    "answer": "<ul><li><strong>forRoot()</strong> configures a module globally/once, typically for connections or app-wide options.</li><li><strong>forFeature()</strong> registers feature-specific resources (e.g. entities, schemas) in the modules that use them.</li><li><strong>forRootAsync()</strong> is the async variant of forRoot, letting you build options using injected providers like <code>ConfigService</code>.</li></ul>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What are injection scopes (DEFAULT, REQUEST, TRANSIENT) in NestJS?",
+    "answer": "<p>Injection scopes control the lifetime of a provider instance. There are three:</p><ul><li><strong>DEFAULT (Singleton)</strong>: one shared instance for the whole app.</li><li><strong>REQUEST</strong>: a new instance per incoming request.</li><li><strong>TRANSIENT</strong>: a new dedicated instance for each consumer that injects it.</li></ul><pre><code>@Injectable({ scope: Scope.REQUEST })\nexport class RequestScopedService {}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is the NestJS request lifecycle order?",
+    "answer": "<p>For an HTTP request the order is roughly:</p><ol><li>Middleware (global, then module-bound)</li><li>Guards (global, controller, route)</li><li>Interceptors (pre-controller)</li><li>Pipes</li><li>Route handler (controller method)</li><li>Interceptors (post-controller)</li><li>Exception filters (if an error is thrown)</li></ol><p>Understanding this order is key when deciding where to place cross-cutting logic.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you implement authentication using Passport and JWT in NestJS?",
+    "answer": "<p>Use <code>@nestjs/passport</code> and <code>@nestjs/jwt</code>. You create a <code>JwtStrategy</code> extending <code>PassportStrategy</code>, register <code>JwtModule</code> with a secret, and protect routes with an <code>AuthGuard('jwt')</code>.</p><pre><code>@Injectable()\nexport class JwtStrategy extends PassportStrategy(Strategy) {\n  constructor() {\n    super({\n      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),\n      secretOrKey: process.env.JWT_SECRET,\n    });\n  }\n  async validate(payload) { return { userId: payload.sub }; }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you implement a local (username/password) login strategy?",
+    "answer": "<p>Create a <code>LocalStrategy</code> extending <code>PassportStrategy(Strategy)</code> from <code>passport-local</code> and implement <code>validate()</code> to check credentials, then sign a JWT in the controller.</p><pre><code>@Injectable()\nexport class LocalStrategy extends PassportStrategy(Strategy) {\n  constructor(private auth: AuthService) { super(); }\n  async validate(username, password) {\n    const user = await this.auth.validateUser(username, password);\n    if (!user) throw new UnauthorizedException();\n    return user;\n  }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you implement role-based access control (RBAC) in NestJS?",
+    "answer": "<p>Combine a custom <code>@Roles()</code> decorator (using <code>SetMetadata</code>) with a <code>RolesGuard</code> that reads the required roles via <code>Reflector</code> and compares them to the authenticated user's roles.</p><pre><code>@Injectable()\nexport class RolesGuard implements CanActivate {\n  constructor(private reflector: Reflector) {}\n  canActivate(ctx: ExecutionContext) {\n    const roles = this.reflector.get('roles', ctx.getHandler());\n    const { user } = ctx.switchToHttp().getRequest();\n    return roles.some(r =&gt; user.roles?.includes(r));\n  }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you write a unit test for a NestJS service?",
+    "answer": "<p>Use the <code>@nestjs/testing</code> package to build a testing module that provides the service and mocks for its dependencies.</p><pre><code>const module = await Test.createTestingModule({\n  providers: [\n    CatsService,\n    { provide: Repo, useValue: mockRepo },\n  ],\n}).compile();\nconst service = module.get(CatsService);</code></pre><p>This isolates the unit by replacing real dependencies with controllable mocks.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is the difference between unit tests and e2e tests in NestJS?",
+    "answer": "<p><strong>Unit tests</strong> test individual classes (services, controllers) in isolation, mocking their dependencies. <strong>End-to-end (e2e) tests</strong> boot the full application and make real HTTP requests, verifying that modules, guards, pipes, and routes work together.</p><p>E2E tests typically use <code>supertest</code> with a compiled <code>INestApplication</code> instance.</p><pre><code>request(app.getHttpServer()).get('/cats').expect(200);</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you override a provider or guard in a NestJS test?",
+    "answer": "<p>Use <code>overrideProvider()</code> (or <code>overrideGuard()</code>) on the <code>Test.createTestingModule</code> builder before compiling, supplying a mock implementation.</p><pre><code>const module = await Test.createTestingModule({ imports: [AppModule] })\n  .overrideProvider(MailService)\n  .useValue({ send: jest.fn() })\n  .overrideGuard(JwtAuthGuard)\n  .useValue({ canActivate: () =&gt; true })\n  .compile();</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you enable caching in NestJS?",
+    "answer": "<p>Import <code>CacheModule</code> from <code>@nestjs/cache-manager</code> and optionally apply <code>CacheInterceptor</code> to automatically cache GET responses.</p><pre><code>@Module({\n  imports: [CacheModule.register({ ttl: 5000 })],\n})\nexport class AppModule {}\n\n@UseInterceptors(CacheInterceptor)\n@Get()\nfindAll() {}</code></pre><p>You can plug in a store like Redis for distributed caching.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you manually read and write to the cache in NestJS?",
+    "answer": "<p>Inject the cache manager using the <code>CACHE_MANAGER</code> token and use its <code>get()</code> and <code>set()</code> methods.</p><pre><code>@Injectable()\nexport class Svc {\n  constructor(@Inject(CACHE_MANAGER) private cache: Cache) {}\n  async getData(key: string) {\n    const cached = await this.cache.get(key);\n    if (cached) return cached;\n    const data = await this.fetch();\n    await this.cache.set(key, data, 60000);\n    return data;\n  }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you schedule cron jobs in NestJS?",
+    "answer": "<p>Use <code>@nestjs/schedule</code>. Import <code>ScheduleModule.forRoot()</code> and decorate methods with <code>@Cron()</code>, <code>@Interval()</code>, or <code>@Timeout()</code>.</p><pre><code>@Injectable()\nexport class TasksService {\n  @Cron('0 * * * *')\n  handleHourly() {\n    console.log('Runs every hour');\n  }\n}</code></pre><p><code>@Cron</code> accepts a cron expression or a <code>CronExpression</code> enum value.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you implement background job queues with Bull in NestJS?",
+    "answer": "<p>Use <code>@nestjs/bull</code> (backed by Redis). Register a queue with <code>BullModule.registerQueue()</code>, add jobs via the injected <code>Queue</code>, and process them in a class decorated with <code>@Processor()</code>.</p><pre><code>@Processor('audio')\nexport class AudioProcessor {\n  @Process('transcode')\n  async handle(job: Job) { /* ... */ }\n}\n\n// producer\nawait this.audioQueue.add('transcode', { file });</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you build a GraphQL API in NestJS?",
+    "answer": "<p>Use <code>@nestjs/graphql</code> with a driver (Apollo or Mercurius). Import <code>GraphQLModule.forRoot()</code>, then define resolvers with <code>@Resolver()</code>, <code>@Query()</code>, and <code>@Mutation()</code>.</p><pre><code>@Resolver(() =&gt; Author)\nexport class AuthorsResolver {\n  @Query(() =&gt; Author)\n  author(@Args('id') id: number) {\n    return this.authorsService.findById(id);\n  }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is the difference between code-first and schema-first in NestJS GraphQL?",
+    "answer": "<p>In the <strong>code-first</strong> approach you use TypeScript classes and decorators (<code>@ObjectType</code>, <code>@Field</code>), and Nest auto-generates the GraphQL schema (SDL) from them. In the <strong>schema-first</strong> approach you write the SDL by hand and Nest generates TypeScript typings from it.</p><p>Code-first is popular in Nest because it keeps a single source of truth in TypeScript and integrates naturally with the type system.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you implement WebSockets/gateways in NestJS?",
+    "answer": "<p>Create a <strong>gateway</strong> with the <code>@WebSocketGateway()</code> decorator and handle events using <code>@SubscribeMessage()</code>. Nest supports Socket.IO and native ws adapters.</p><pre><code>@WebSocketGateway()\nexport class EventsGateway {\n  @SubscribeMessage('message')\n  handleMessage(@MessageBody() data: string): string {\n    return 'ack: ' + data;\n  }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What are microservices in NestJS?",
+    "answer": "<p>NestJS supports building <strong>microservices</strong> that communicate over transport layers other than HTTP, such as TCP, Redis, NATS, RabbitMQ, Kafka, or gRPC. You create one with <code>NestFactory.createMicroservice()</code> and a chosen transport.</p><pre><code>const app = await NestFactory.createMicroservice(AppModule, {\n  transport: Transport.TCP,\n});</code></pre><p>Handlers use message-based patterns instead of HTTP routes.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is the difference between @MessagePattern and @EventPattern in microservices?",
+    "answer": "<p><code>@MessagePattern</code> implements <strong>request-response</strong>: the client sends a message and awaits a reply. <code>@EventPattern</code> implements <strong>event-based (fire-and-forget)</strong> communication: the client publishes an event and does not expect a response.</p><pre><code>@MessagePattern({ cmd: 'sum' })\nsum(data: number[]): number { return data.reduce((a, b) =&gt; a + b); }\n\n@EventPattern('user_created')\nhandleUserCreated(data: any) {}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you set up Swagger (OpenAPI) documentation in NestJS?",
+    "answer": "<p>Use <code>@nestjs/swagger</code>. Build a document with <code>DocumentBuilder</code> and mount it with <code>SwaggerModule.setup()</code>.</p><pre><code>const config = new DocumentBuilder()\n  .setTitle('Cats API')\n  .setVersion('1.0')\n  .build();\nconst doc = SwaggerModule.createDocument(app, config);\nSwaggerModule.setup('api', app, doc);</code></pre><p>The interactive UI is then served at <code>/api</code>.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you document DTOs and responses for Swagger?",
+    "answer": "<p>Use decorators from <code>@nestjs/swagger</code> such as <code>@ApiProperty()</code> on DTO fields and <code>@ApiResponse()</code> / <code>@ApiTags()</code> on controllers.</p><pre><code>export class CreateCatDto {\n  @ApiProperty({ example: 'Tom' })\n  name: string;\n}</code></pre><p>The CLI plugin can also infer many of these annotations automatically from TypeScript types, reducing boilerplate.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you implement API versioning in NestJS?",
+    "answer": "<p>Enable versioning with <code>app.enableVersioning()</code>, choosing a type: URI, header, media type, or custom. Then annotate controllers/routes with <code>@Version()</code>.</p><pre><code>app.enableVersioning({ type: VersioningType.URI });\n\n@Controller({ path: 'cats', version: '1' })\nexport class CatsV1Controller {}</code></pre><p>URI versioning is the most common, producing routes like <code>/v1/cats</code>.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is the ExecutionContext in NestJS?",
+    "answer": "<p><code>ExecutionContext</code> extends <code>ArgumentsHost</code> and provides details about the current execution, including the handler and controller class being invoked. Guards and interceptors receive it to make context-aware decisions.</p><p>It also lets you switch between transport contexts (HTTP, RPC, WebSockets) with <code>switchToHttp()</code>, <code>switchToRpc()</code>, and <code>switchToWs()</code>, enabling protocol-agnostic enhancers.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How does NestJS handle circular dependencies between providers?",
+    "answer": "<p>When two providers (or modules) depend on each other, Nest cannot resolve them in order. You resolve this using <code>forwardRef()</code> on both sides of the relationship.</p><pre><code>@Injectable()\nexport class AService {\n  constructor(\n    @Inject(forwardRef(() =&gt; BService))\n    private b: BService,\n  ) {}\n}</code></pre><p>Where possible, it's better to refactor to remove the cycle, e.g. by extracting shared logic into a third provider.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you globally register a guard with dependency injection support?",
+    "answer": "<p>Instead of <code>app.useGlobalGuards()</code> (which cannot inject dependencies), provide the guard using the <code>APP_GUARD</code> token inside a module. Nest then instantiates it through the DI container.</p><pre><code>@Module({\n  providers: [\n    { provide: APP_GUARD, useClass: RolesGuard },\n  ],\n})\nexport class AppModule {}</code></pre><p>The same pattern applies with <code>APP_PIPE</code>, <code>APP_INTERCEPTOR</code>, and <code>APP_FILTER</code>.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you handle file uploads in NestJS?",
+    "answer": "<p>Use the <code>FileInterceptor</code> (built on Multer) with the <code>@UploadedFile()</code> decorator.</p><pre><code>@Post('upload')\n@UseInterceptors(FileInterceptor('file'))\nupload(@UploadedFile() file: Express.Multer.File) {\n  return { name: file.originalname, size: file.size };\n}</code></pre><p>For multiple files use <code>FilesInterceptor</code> with <code>@UploadedFiles()</code>, and apply <code>ParseFilePipe</code> validators for size/type checks.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you use the @Inject() decorator and when is it required?",
+    "answer": "<p><code>@Inject(token)</code> is required when the dependency is registered under a <strong>non-class token</strong> (a string or symbol) rather than a class type, because TypeScript cannot infer such tokens from the type.</p><pre><code>constructor(@Inject('CONNECTION') private conn: Connection) {}</code></pre><p>For ordinary class providers, Nest infers the token from the parameter type, so <code>@Inject()</code> is unnecessary.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you implement a custom validation pipe?",
+    "answer": "<p>Implement <code>PipeTransform</code> and put your validation logic in the <code>transform()</code> method, throwing a <code>BadRequestException</code> when invalid.</p><pre><code>@Injectable()\nexport class ParsePositivePipe implements PipeTransform {\n  transform(value: any) {\n    const n = Number(value);\n    if (isNaN(n) || n &lt;= 0) throw new BadRequestException('Must be positive');\n    return n;\n  }\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you apply nested object validation in DTOs?",
+    "answer": "<p>Use <code>@ValidateNested()</code> along with <code>@Type()</code> from <code>class-transformer</code> so the validator knows the class of the nested object and recurses into it.</p><pre><code>export class CreateOrderDto {\n  @ValidateNested({ each: true })\n  @Type(() =&gt; OrderItemDto)\n  items: OrderItemDto[];\n}</code></pre><p>Without <code>@Type()</code>, nested plain objects are not transformed into class instances and won't be validated.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you manage database transactions in NestJS with TypeORM?",
+    "answer": "<p>Use a <code>QueryRunner</code> or the <code>DataSource.transaction()</code> helper to run multiple operations atomically, committing on success and rolling back on error.</p><pre><code>await this.dataSource.transaction(async (manager) =&gt; {\n  await manager.save(order);\n  await manager.decrement(Product, { id }, 'stock', 1);\n});</code></pre><p>This ensures all-or-nothing semantics when several writes must succeed together.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you implement refresh tokens with JWT in NestJS?",
+    "answer": "<p>Issue two tokens: a short-lived <strong>access token</strong> and a longer-lived <strong>refresh token</strong>, typically signed with separate secrets/expirations. Store a hash of the refresh token server-side, and expose a <code>/refresh</code> endpoint guarded by a refresh-token strategy that issues a new access token.</p><p>On logout or compromise, you invalidate the stored hash. This limits the damage window if an access token leaks while keeping users logged in.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "What is the difference between @nestjs/passport AuthGuard and a custom guard?",
+    "answer": "<p><code>AuthGuard('strategy')</code> from <code>@nestjs/passport</code> is a pre-built guard that runs a named Passport strategy and attaches the result to <code>request.user</code>. A <strong>custom guard</strong> is one you write from scratch implementing <code>CanActivate</code> for arbitrary logic (e.g. checking roles, API keys, or feature flags).</p><p>In practice you often combine both: AuthGuard for authentication and a custom RolesGuard for authorization.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you implement rate limiting in NestJS?",
+    "answer": "<p>Use the <code>@nestjs/throttler</code> package. Import <code>ThrottlerModule.forRoot()</code> with limits, and apply the <code>ThrottlerGuard</code> globally or per route.</p><pre><code>@Module({\n  imports: [ThrottlerModule.forRoot([{ ttl: 60000, limit: 10 }])],\n  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],\n})\nexport class AppModule {}</code></pre><p>Use <code>@SkipThrottle()</code> or <code>@Throttle()</code> to override limits on specific handlers.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How does NestJS support GraphQL subscriptions over WebSockets?",
+    "answer": "<p>GraphQL subscriptions enable real-time updates pushed from server to client over a persistent connection. In Nest you enable them in the GraphQL driver config and define them with the <code>@Subscription()</code> decorator, typically backed by a <code>PubSub</code> engine.</p><pre><code>@Subscription(() =&gt; Comment)\ncommentAdded() {\n  return this.pubSub.asyncIterator('commentAdded');\n}</code></pre>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you implement health checks in NestJS?",
+    "answer": "<p>Use the <code>@nestjs/terminus</code> package, which provides a <code>HealthCheckService</code> and indicators for databases, HTTP, memory, and disk. You expose a controller endpoint that aggregates the checks.</p><pre><code>@Get('health')\n@HealthCheck()\ncheck() {\n  return this.health.check([\n    () =&gt; this.db.pingCheck('database'),\n  ]);\n}</code></pre><p>This is commonly used by load balancers and orchestrators like Kubernetes.</p>",
+    "category": "nestjs"
+  },
+  {
+    "question": "How do you gracefully handle validation errors and customize their format?",
+    "answer": "<p>Pass an <code>exceptionFactory</code> to the <code>ValidationPipe</code> to transform the array of <code>ValidationError</code> objects into a custom exception/response shape.</p><pre><code>new ValidationPipe({\n  exceptionFactory: (errors) =&gt; new BadRequestException(\n    errors.map((e) =&gt; ({ field: e.property, errors: e.constraints })),\n  ),\n});</code></pre><p>This lets you return a consistent, client-friendly error structure across the API.</p>",
+    "category": "nestjs"
+  }
+]

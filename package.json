@@ -6,14 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "node scripts/seed.mjs",
+    "seed:fresh": "node scripts/seed.mjs --fresh"
   },
   "dependencies": {
     "lucide-react": "^0.554.0",
     "mongoose": "^9.0.0",
     "next": "^16.1.1",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "unpdf": "^1.6.2"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "^5.14.7",

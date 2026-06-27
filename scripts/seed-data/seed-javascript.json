@@ -1,0 +1,302 @@
+[
+  {
+    "question": "What is the difference between var, let, and const?",
+    "answer": "<p><strong>var</strong> is function-scoped and hoisted (initialized as <code>undefined</code>), and can be redeclared. <strong>let</strong> and <strong>const</strong> are block-scoped, hoisted but kept in the temporal dead zone until declared, and cannot be redeclared in the same scope.</p><p><strong>const</strong> additionally requires an initializer and prevents reassignment of the binding (though object contents can still mutate).</p><pre><code>var a = 1; a = 2;        // ok\nlet b = 1; b = 2;        // ok\nconst c = 1; c = 2;      // TypeError</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is hoisting in JavaScript?",
+    "answer": "<p><strong>Hoisting</strong> is JavaScript's behavior of moving declarations to the top of their scope during the compilation phase. <code>var</code> declarations are hoisted and initialized to <code>undefined</code>, while function declarations are hoisted entirely (you can call them before they appear). <code>let</code> and <code>const</code> are hoisted but not initialized, so accessing them early throws a ReferenceError.</p><pre><code>console.log(x); // undefined\nvar x = 5;\nfoo();          // works\nfunction foo() {}</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the Temporal Dead Zone (TDZ)?",
+    "answer": "<p>The <strong>Temporal Dead Zone</strong> is the period between entering a scope and the point where a <code>let</code> or <code>const</code> variable is declared. During this time the variable exists but cannot be accessed; doing so throws a ReferenceError. This is why <code>let</code>/<code>const</code> appear \"not hoisted\" even though they technically are.</p><pre><code>console.log(a); // ReferenceError\nlet a = 10;</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between == and ===?",
+    "answer": "<p><strong>==</strong> (loose equality) compares values after performing type coercion, so operands of different types may be converted before comparison. <strong>===</strong> (strict equality) compares both value and type without coercion, returning <code>false</code> if the types differ.</p><pre><code>0 == '0'   // true\n0 === '0'  // false\nnull == undefined  // true\nnull === undefined // false</code></pre><p>Prefer <code>===</code> to avoid surprising coercion bugs.</p>",
+    "category": "javascript"
+  },
+  {
+    "question": "What are the primitive data types in JavaScript?",
+    "answer": "<p>JavaScript has seven primitive types: <strong>string</strong>, <strong>number</strong>, <strong>boolean</strong>, <strong>null</strong>, <strong>undefined</strong>, <strong>symbol</strong>, and <strong>bigint</strong>. Primitives are immutable and compared by value. Everything else (objects, arrays, functions) is a reference type compared by reference.</p>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between null and undefined?",
+    "answer": "<p><strong>undefined</strong> means a variable has been declared but not assigned a value, or a property/return value does not exist. <strong>null</strong> is an intentional assignment representing \"no value\". They are loosely equal (<code>null == undefined</code>) but not strictly equal (<code>null === undefined</code> is false).</p><pre><code>let a;            // undefined\nlet b = null;     // explicitly empty\ntypeof a; // 'undefined'\ntypeof b; // 'object' (a known quirk)</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What does the typeof operator return for different values?",
+    "answer": "<p><code>typeof</code> returns a string describing the operand's type. Note the well-known quirk that <code>typeof null</code> returns <code>'object'</code>, and functions return <code>'function'</code>.</p><pre><code>typeof 42         // 'number'\ntypeof 'hi'       // 'string'\ntypeof true       // 'boolean'\ntypeof undefined  // 'undefined'\ntypeof null       // 'object'\ntypeof {}         // 'object'\ntypeof []         // 'object'\ntypeof function(){} // 'function'\ntypeof Symbol()   // 'symbol'</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is type coercion in JavaScript?",
+    "answer": "<p><strong>Type coercion</strong> is the automatic or implicit conversion of values from one type to another, such as when using <code>==</code>, the <code>+</code> operator with a string, or in boolean contexts. Implicit coercion happens automatically; explicit coercion is when you intentionally convert with <code>Number()</code>, <code>String()</code>, or <code>Boolean()</code>.</p><pre><code>'5' + 1   // '51'  (number coerced to string)\n'5' - 1   // 4     (string coerced to number)\nif ('') {} // '' is falsy</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What are truthy and falsy values in JavaScript?",
+    "answer": "<p><strong>Falsy</strong> values evaluate to <code>false</code> in a boolean context. There are exactly eight: <code>false</code>, <code>0</code>, <code>-0</code>, <code>0n</code>, <code>''</code>, <code>null</code>, <code>undefined</code>, and <code>NaN</code>. Every other value is <strong>truthy</strong>, including <code>'0'</code>, <code>'false'</code>, <code>[]</code>, and <code>{}</code>.</p><pre><code>if ([]) console.log('runs');  // empty array is truthy</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is a closure in JavaScript?",
+    "answer": "<p>A <strong>closure</strong> is a function that retains access to variables from its lexical (enclosing) scope even after the outer function has finished executing. Closures let functions \"remember\" their environment and are the basis for data privacy, currying, and stateful callbacks.</p><pre><code>function counter() {\n  let count = 0;\n  return () =&gt; ++count;\n}\nconst inc = counter();\ninc(); // 1\ninc(); // 2</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is lexical scope?",
+    "answer": "<p><strong>Lexical scope</strong> (also called static scope) means a variable's accessibility is determined by where it is physically written in the source code, not by where or how a function is called. Inner functions have access to variables declared in their outer functions. This is resolved at author time, which is what makes closures predictable.</p>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between function scope and block scope?",
+    "answer": "<p><strong>Function scope</strong> means a variable is visible throughout the entire function in which it is declared (this is how <code>var</code> behaves). <strong>Block scope</strong> means a variable is only visible within the nearest enclosing pair of braces, such as inside an <code>if</code> or <code>for</code> block (this is how <code>let</code> and <code>const</code> behave).</p><pre><code>function f() {\n  if (true) { var a = 1; let b = 2; }\n  console.log(a); // 1\n  console.log(b); // ReferenceError\n}</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "How does the 'this' keyword work in JavaScript?",
+    "answer": "<p><code>this</code> refers to the execution context and is determined by how a function is called, not where it is defined. In a regular function call it is the global object (or <code>undefined</code> in strict mode); as a method it is the object before the dot; with <code>new</code> it is the new instance; and it can be set explicitly with <code>call</code>, <code>apply</code>, or <code>bind</code>.</p><pre><code>const obj = { name: 'A', greet() { return this.name; } };\nobj.greet(); // 'A'</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "How does 'this' behave in arrow functions?",
+    "answer": "<p>Arrow functions do not have their own <code>this</code>; they capture <code>this</code> lexically from the surrounding scope at definition time. This makes them ideal for callbacks where you want to preserve the enclosing context, and means <code>call</code>/<code>apply</code>/<code>bind</code> cannot change their <code>this</code>.</p><pre><code>const obj = {\n  items: [1,2],\n  show() { this.items.forEach(() =&gt; console.log(this.items)); }\n};\nobj.show(); // 'this' stays as obj</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between call, apply, and bind?",
+    "answer": "<p>All three set a function's <code>this</code> value. <strong>call</strong> invokes the function immediately with arguments passed individually. <strong>apply</strong> invokes immediately but takes arguments as an array. <strong>bind</strong> returns a new function with <code>this</code> permanently bound, without calling it right away.</p><pre><code>fn.call(obj, 1, 2);\nfn.apply(obj, [1, 2]);\nconst bound = fn.bind(obj);\nbound(1, 2);</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the prototype chain in JavaScript?",
+    "answer": "<p>The <strong>prototype chain</strong> is the mechanism by which objects inherit properties. When you access a property, JavaScript looks on the object itself, then its <code>[[Prototype]]</code>, then that object's prototype, and so on until it reaches <code>null</code>. This chain enables inheritance and shared methods.</p><pre><code>const arr = [];\narr.push; // found on Array.prototype via the chain</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between __proto__ and prototype?",
+    "answer": "<p><strong>prototype</strong> is a property on constructor functions; it is the object that will become the prototype of instances created with <code>new</code>. <strong>__proto__</strong> (or <code>Object.getPrototypeOf()</code>) is the actual internal link on every object pointing to its prototype. In short, <code>instance.__proto__ === Constructor.prototype</code>.</p><pre><code>function Dog() {}\nconst d = new Dog();\nd.__proto__ === Dog.prototype; // true</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "How do you implement inheritance using prototypes?",
+    "answer": "<p>You can chain prototypes so one constructor inherits from another. Call the parent constructor with <code>Parent.call(this, ...)</code> to inherit instance properties, and set the child prototype to an object created from the parent prototype to inherit methods.</p><pre><code>function Animal(name){ this.name = name; }\nAnimal.prototype.speak = function(){ return this.name; };\nfunction Dog(name){ Animal.call(this, name); }\nDog.prototype = Object.create(Animal.prototype);\nDog.prototype.constructor = Dog;</code></pre><p>ES6 <code>class ... extends</code> is syntactic sugar over this.</p>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between a function declaration and a function expression?",
+    "answer": "<p>A <strong>function declaration</strong> is fully hoisted, so it can be called before it appears in the code. A <strong>function expression</strong> assigns a function to a variable and is only available after that line executes (the variable is hoisted, not the function value).</p><pre><code>declared();   // works\nfunction declared(){}\n\nexpr();       // TypeError\nconst expr = function(){};</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What are arrow functions and how do they differ from regular functions?",
+    "answer": "<p><strong>Arrow functions</strong> provide a concise syntax and differ from regular functions in several ways: they have no own <code>this</code> (lexical binding), no <code>arguments</code> object, cannot be used as constructors (no <code>new</code>), and have no <code>prototype</code> property. They are best for short callbacks and methods that should inherit the surrounding <code>this</code>.</p><pre><code>const add = (a, b) =&gt; a + b;</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between primitive and reference types?",
+    "answer": "<p><strong>Primitives</strong> (string, number, boolean, etc.) are stored and copied by value; assigning one creates an independent copy. <strong>Reference types</strong> (objects, arrays, functions) are stored by reference, so assigning copies the pointer and both variables share the same underlying data.</p><pre><code>let a = { x: 1 };\nlet b = a;\nb.x = 9;\na.x; // 9 (same reference)</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is destructuring in JavaScript?",
+    "answer": "<p><strong>Destructuring</strong> is a syntax for extracting values from arrays or properties from objects into distinct variables. It supports default values, renaming, and nesting, making code more concise.</p><pre><code>const [a, b = 10] = [1];          // a=1, b=10\nconst { name, age: years } = user; // rename age to years</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the spread operator and how is it used?",
+    "answer": "<p>The <strong>spread operator</strong> (<code>...</code>) expands an iterable or object into individual elements. It is commonly used to copy or merge arrays and objects, or to pass array elements as function arguments.</p><pre><code>const merged = [...arr1, ...arr2];\nconst clone = { ...obj, updated: true };\nMath.max(...[3, 7, 2]); // 7</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the rest parameter and how does it differ from spread?",
+    "answer": "<p>The <strong>rest parameter</strong> uses the same <code>...</code> syntax but collects multiple arguments into a single array. Spread <em>expands</em> values out; rest <em>gathers</em> them in. Rest must be the last parameter in a function signature.</p><pre><code>function sum(...nums) {\n  return nums.reduce((a, b) =&gt; a + b, 0);\n}\nsum(1, 2, 3); // 6</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What are higher-order functions?",
+    "answer": "<p>A <strong>higher-order function</strong> is a function that takes one or more functions as arguments and/or returns a function. They enable composition and abstraction; built-in examples include <code>map</code>, <code>filter</code>, <code>reduce</code>, and <code>setTimeout</code>.</p><pre><code>const withLog = fn =&gt; (...args) =&gt; {\n  console.log('calling');\n  return fn(...args);\n};</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between map, filter, and reduce?",
+    "answer": "<p><strong>map</strong> transforms each element and returns a new array of the same length. <strong>filter</strong> returns a new array containing only elements that pass a test. <strong>reduce</strong> accumulates the array into a single value using an accumulator.</p><pre><code>[1,2,3].map(n =&gt; n*2);          // [2,4,6]\n[1,2,3].filter(n =&gt; n &gt; 1);     // [2,3]\n[1,2,3].reduce((a,n) =&gt; a+n, 0); // 6</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between forEach and map?",
+    "answer": "<p><strong>forEach</strong> executes a callback for each element purely for side effects and returns <code>undefined</code>. <strong>map</strong> also runs a callback per element but returns a new array of the transformed results. Use <code>map</code> when you need a result array and <code>forEach</code> when you only need to perform actions.</p><pre><code>[1,2].map(x =&gt; x*2);     // [2,4]\n[1,2].forEach(x =&gt; x*2); // undefined</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is currying in JavaScript?",
+    "answer": "<p><strong>Currying</strong> is a technique of transforming a function that takes multiple arguments into a sequence of functions that each take a single argument. It enables partial application and reuse of specialized functions.</p><pre><code>const add = a =&gt; b =&gt; c =&gt; a + b + c;\nadd(1)(2)(3); // 6\nconst add5 = add(5);</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between a callback and a promise?",
+    "answer": "<p>A <strong>callback</strong> is a function passed to another function to be invoked later, commonly used for async results but prone to deeply nested \"callback hell\". A <strong>promise</strong> is an object representing the eventual result of an async operation, offering chaining with <code>.then()</code>/<code>.catch()</code> and cleaner error handling.</p><pre><code>fetch(url).then(res =&gt; res.json()).catch(err =&gt; ...);</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What are the three states of a Promise?",
+    "answer": "<p>A Promise can be in one of three states: <strong>pending</strong> (initial, neither fulfilled nor rejected), <strong>fulfilled</strong> (resolved successfully with a value), or <strong>rejected</strong> (failed with a reason). Once it settles into fulfilled or rejected, the state is final and cannot change.</p><pre><code>const p = new Promise((resolve, reject) =&gt; resolve(42));</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is async/await and how does it relate to promises?",
+    "answer": "<p><strong>async/await</strong> is syntactic sugar over promises that lets you write asynchronous code in a synchronous-looking style. An <code>async</code> function always returns a promise, and <code>await</code> pauses execution until the awaited promise settles. Errors are handled with <code>try/catch</code> instead of <code>.catch()</code>.</p><pre><code>async function load() {\n  try {\n    const res = await fetch(url);\n    return await res.json();\n  } catch (e) { console.error(e); }\n}</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the JavaScript event loop?",
+    "answer": "<p>The <strong>event loop</strong> is the mechanism that lets single-threaded JavaScript handle asynchronous operations. It continuously checks the call stack; when the stack is empty, it pushes queued callbacks (from timers, I/O, promises) onto the stack to run. This allows non-blocking concurrency despite a single thread.</p>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between microtasks and macrotasks?",
+    "answer": "<p><strong>Microtasks</strong> (promise callbacks, <code>queueMicrotask</code>, <code>MutationObserver</code>) run after the current task and are fully drained before the next macrotask. <strong>Macrotasks</strong> (<code>setTimeout</code>, <code>setInterval</code>, I/O, UI rendering) are processed one at a time. After each macrotask, the engine empties the entire microtask queue before moving on.</p><pre><code>console.log(1);\nsetTimeout(() =&gt; console.log(2));      // macrotask\nPromise.resolve().then(() =&gt; console.log(3)); // microtask\nconsole.log(4);\n// Output: 1, 4, 3, 2</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the output order of setTimeout vs Promise.then?",
+    "answer": "<p>A <code>Promise.then</code> callback is a microtask and runs before a <code>setTimeout</code> callback (a macrotask), even when the timeout is <code>0</code>. This is because the microtask queue is fully drained after the current synchronous code and before the next macrotask.</p><pre><code>setTimeout(() =&gt; console.log('timeout'));\nPromise.resolve().then(() =&gt; console.log('promise'));\n// promise, then timeout</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is Promise.all and how does it differ from Promise.race?",
+    "answer": "<p><strong>Promise.all</strong> waits for all promises to fulfill and resolves with an array of results, but rejects immediately if any one rejects. <strong>Promise.race</strong> settles as soon as the first promise settles (fulfilled or rejected), returning that single result.</p><pre><code>Promise.all([p1, p2]).then(([r1, r2]) =&gt; ...);\nPromise.race([p1, p2]).then(first =&gt; ...);</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between Promise.all and Promise.allSettled?",
+    "answer": "<p><strong>Promise.all</strong> rejects as soon as any input promise rejects, discarding the other results. <strong>Promise.allSettled</strong> never rejects; it waits for every promise to settle and returns an array of objects describing each outcome with a <code>status</code> of <code>'fulfilled'</code> or <code>'rejected'</code>.</p><pre><code>Promise.allSettled([p1, p2]).then(results =&gt;\n  results.forEach(r =&gt; console.log(r.status))\n);</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is event delegation?",
+    "answer": "<p><strong>Event delegation</strong> is a pattern where you attach a single event listener to a parent element instead of many listeners on individual children, relying on event bubbling to handle events from descendants. It improves performance and automatically handles dynamically added elements.</p><pre><code>list.addEventListener('click', e =&gt; {\n  if (e.target.matches('li')) console.log(e.target.textContent);\n});</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between event bubbling and capturing?",
+    "answer": "<p>When an event fires, it travels in phases. In the <strong>capturing</strong> phase it goes from the document root down to the target; in the <strong>bubbling</strong> phase it travels back up from the target to the root. By default listeners run during bubbling; passing <code>true</code> (or <code>{capture: true}</code>) registers a listener for the capturing phase.</p><pre><code>el.addEventListener('click', handler, true); // capture</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is debouncing?",
+    "answer": "<p><strong>Debouncing</strong> delays invoking a function until a specified time has passed since the last call. It is useful for events that fire rapidly, like typing in a search box or resizing a window, ensuring the handler runs only once activity stops.</p><pre><code>function debounce(fn, delay) {\n  let t;\n  return (...args) =&gt; {\n    clearTimeout(t);\n    t = setTimeout(() =&gt; fn(...args), delay);\n  };\n}</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is throttling and how does it differ from debouncing?",
+    "answer": "<p><strong>Throttling</strong> ensures a function runs at most once per specified interval, regardless of how many times it is triggered. The key difference: throttling guarantees regular execution during continuous events (good for scroll), while debouncing waits for a pause before executing once.</p><pre><code>function throttle(fn, limit) {\n  let wait = false;\n  return (...a) =&gt; {\n    if (!wait) { fn(...a); wait = true; setTimeout(() =&gt; wait = false, limit); }\n  };\n}</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between shallow copy and deep copy?",
+    "answer": "<p>A <strong>shallow copy</strong> duplicates the top-level properties but nested objects are still shared by reference. A <strong>deep copy</strong> recursively duplicates all nested structures, producing a fully independent clone. Spread and <code>Object.assign</code> are shallow; <code>structuredClone</code> or a recursive function produces a deep copy.</p><pre><code>const shallow = { ...obj };\nconst deep = structuredClone(obj);</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "How do you deep clone an object in JavaScript?",
+    "answer": "<p>The modern built-in way is <code>structuredClone()</code>, which handles nested objects, arrays, Dates, Maps, and Sets, but not functions. A simple but limited approach is <code>JSON.parse(JSON.stringify(obj))</code>, which loses functions, <code>undefined</code>, Dates become strings, and fails on circular references.</p><pre><code>const copy = structuredClone(original);\n// or (lossy):\nconst copy2 = JSON.parse(JSON.stringify(original));</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is JSON and how do you work with it in JavaScript?",
+    "answer": "<p><strong>JSON</strong> (JavaScript Object Notation) is a lightweight, language-independent text format for data exchange. In JavaScript, <code>JSON.stringify()</code> converts an object into a JSON string and <code>JSON.parse()</code> converts a JSON string back into an object. JSON supports strings, numbers, booleans, null, arrays, and objects, but not functions or <code>undefined</code>.</p><pre><code>const str = JSON.stringify({ a: 1 });\nconst obj = JSON.parse(str);</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between ES Modules and CommonJS?",
+    "answer": "<p><strong>CommonJS</strong> (Node's traditional system) uses <code>require()</code> and <code>module.exports</code>, loads synchronously, and resolves at runtime. <strong>ES Modules</strong> use <code>import</code>/<code>export</code>, are statically analyzable (enabling tree-shaking), support top-level <code>await</code>, and are asynchronous. ESM imports are live bindings, while CommonJS exports are copied values.</p><pre><code>// ESM\nimport { x } from './m.js';\n// CommonJS\nconst { x } = require('./m');</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between named and default exports?",
+    "answer": "<p><strong>Named exports</strong> let a module export multiple values that must be imported by their exact names (or renamed with <code>as</code>). A <strong>default export</strong> is a single primary value imported under any name without braces. A module can have many named exports but only one default.</p><pre><code>export const a = 1;          // named\nexport default function(){}  // default\nimport fn, { a } from './m.js';</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What are generators in JavaScript?",
+    "answer": "<p>A <strong>generator</strong> is a special function declared with <code>function*</code> that can pause and resume execution using the <code>yield</code> keyword. Calling it returns an iterator whose <code>next()</code> method runs the function until the next <code>yield</code>. Generators are useful for lazy sequences, custom iterators, and managing async flows.</p><pre><code>function* gen() { yield 1; yield 2; }\nconst it = gen();\nit.next(); // { value: 1, done: false }</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is an iterator and the iterator protocol?",
+    "answer": "<p>An <strong>iterator</strong> is an object with a <code>next()</code> method that returns <code>{ value, done }</code> on each call. The <strong>iterable protocol</strong> requires an object to implement a <code>[Symbol.iterator]()</code> method returning such an iterator. Arrays, strings, Maps, and Sets are built-in iterables, which is what makes them work with <code>for...of</code> and spread.</p><pre><code>const obj = {\n  [Symbol.iterator]() {\n    let i = 0;\n    return { next: () =&gt; ({ value: i, done: i++ &gt; 2 }) };\n  }\n};</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is a Symbol in JavaScript?",
+    "answer": "<p>A <strong>Symbol</strong> is a primitive type that produces a unique, immutable identifier. Every call to <code>Symbol()</code> creates a distinct value, even with the same description, making them ideal for collision-free object keys and well-known protocols like <code>Symbol.iterator</code>.</p><pre><code>const id = Symbol('id');\nconst obj = { [id]: 123 };\nSymbol('x') === Symbol('x'); // false</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between Map and a plain object?",
+    "answer": "<p>A <strong>Map</strong> allows keys of any type (including objects and functions), maintains insertion order, has a <code>size</code> property, and is optimized for frequent additions/removals. A plain <strong>object</strong> only supports string and symbol keys, has a prototype that can cause key collisions, and requires <code>Object.keys</code> to count entries.</p><pre><code>const m = new Map();\nm.set({}, 'objKey');\nm.size; // 1</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is a Set in JavaScript?",
+    "answer": "<p>A <strong>Set</strong> is a collection of unique values of any type; duplicates are automatically ignored. It offers <code>add</code>, <code>has</code>, <code>delete</code>, and <code>size</code>, and is iterable. A common use is removing duplicates from an array.</p><pre><code>const unique = [...new Set([1, 1, 2, 3])]; // [1, 2, 3]</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is a WeakMap and when would you use it?",
+    "answer": "<p>A <strong>WeakMap</strong> holds key-value pairs where keys must be objects and are held <em>weakly</em>, meaning if there are no other references to a key, it can be garbage collected along with its value. It is not iterable and has no <code>size</code>. It is ideal for associating private metadata with objects without preventing their cleanup, avoiding memory leaks.</p><pre><code>const wm = new WeakMap();\nwm.set(domNode, { clicks: 0 });</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is garbage collection in JavaScript?",
+    "answer": "<p><strong>Garbage collection</strong> is automatic memory management that frees objects no longer reachable from the program. Modern engines use a <strong>mark-and-sweep</strong> algorithm: starting from roots (like the global object and active scopes), they mark all reachable objects and reclaim the rest. Memory leaks occur when references are unintentionally kept alive.</p>",
+    "category": "javascript"
+  },
+  {
+    "question": "What causes memory leaks in JavaScript?",
+    "answer": "<p>Common causes include: accidental global variables, forgotten timers or intervals that keep references alive, detached DOM nodes still referenced in JavaScript, closures capturing large objects, and event listeners that are never removed. Using <code>WeakMap</code>/<code>WeakSet</code> for object metadata and cleaning up listeners and timers helps prevent leaks.</p>",
+    "category": "javascript"
+  },
+  {
+    "question": "How can you achieve immutability in JavaScript?",
+    "answer": "<p>You can freeze an object with <code>Object.freeze()</code> to prevent adding, removing, or changing its top-level properties (note it is shallow). For deeper immutability, freeze recursively or use immutable patterns such as creating new objects with spread instead of mutating. Libraries like Immer or Immutable.js help manage immutable state.</p><pre><code>const o = Object.freeze({ a: 1 });\no.a = 2; // silently ignored (throws in strict mode)</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between Object.freeze and Object.seal?",
+    "answer": "<p><strong>Object.freeze</strong> makes an object fully immutable at the top level: you cannot add, delete, or modify existing properties. <strong>Object.seal</strong> prevents adding or deleting properties but still allows modifying the values of existing ones. Both are shallow operations.</p><pre><code>const s = Object.seal({ a: 1 });\ns.a = 2;   // allowed\ns.b = 3;   // ignored</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between slice and splice?",
+    "answer": "<p><strong>slice</strong> returns a shallow copy of a portion of an array without modifying the original. <strong>splice</strong> changes the original array in place by removing, replacing, or inserting elements, and returns the removed elements.</p><pre><code>[1,2,3,4].slice(1, 3);     // [2,3], original unchanged\n[1,2,3,4].splice(1, 2);    // returns [2,3], original now [1,4]</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between for...in and for...of?",
+    "answer": "<p><strong>for...in</strong> iterates over the enumerable property keys of an object (including inherited ones), and is mainly for objects. <strong>for...of</strong> iterates over the values of any iterable (arrays, strings, Maps, Sets). Using <code>for...in</code> on arrays is discouraged because it yields string indices and can pick up extra properties.</p><pre><code>for (const k in obj) { ... }   // keys\nfor (const v of arr) { ... }   // values</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between NaN and how do you check for it?",
+    "answer": "<p><strong>NaN</strong> (\"Not a Number\") is a special numeric value representing an invalid number result. It is unique in that it is not equal to anything, including itself (<code>NaN === NaN</code> is false). Use <code>Number.isNaN()</code> to reliably detect it, since the global <code>isNaN()</code> coerces its argument first.</p><pre><code>Number.isNaN(NaN);    // true\nNumber.isNaN('abc');  // false\nisNaN('abc');         // true (coerced)</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between an IIFE and a regular function?",
+    "answer": "<p>An <strong>IIFE</strong> (Immediately Invoked Function Expression) is a function that is defined and executed at once, typically to create a private scope and avoid polluting the global namespace. A regular function is defined first and called later. IIFEs were widely used for module patterns before ES Modules and block scoping existed.</p><pre><code>(function () {\n  const secret = 42; // private\n})();</code></pre>",
+    "category": "javascript"
+  },
+  {
+    "question": "What is the difference between synchronous and asynchronous code?",
+    "answer": "<p><strong>Synchronous</strong> code executes line by line, blocking subsequent operations until each finishes. <strong>Asynchronous</strong> code allows operations like network requests or timers to run in the background, with results handled later via callbacks, promises, or async/await, so the main thread is not blocked.</p><pre><code>console.log('a');\nsetTimeout(() =&gt; console.log('b'), 0);\nconsole.log('c'); // a, c, b</code></pre>",
+    "category": "javascript"
+  }
+]
